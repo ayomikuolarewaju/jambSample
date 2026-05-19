@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect, useCallback } from "react";
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
@@ -146,8 +148,10 @@ const COURSE_COMBINATIONS = {
 const EXAM_DURATION = 30 * 60; // 30 minutes in seconds
 
 // ─── COMPONENTS ───────────────────────────────────────────────────────────────
-
-function ProgressBar({ step }) {
+interface ProgressBarProps {
+  step: number; // 0 to 4
+}
+function ProgressBar({ step }: ProgressBarProps) {
   const steps = ["Register", "Combination", "Instructions", "Exam", "Result"];
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 32 }}>
@@ -176,7 +180,11 @@ function ProgressBar({ step }) {
   );
 }
 
-function TimerDisplay({ seconds }) {
+interface TimerDisplayProps {
+  seconds: number;
+}
+
+function TimerDisplay({ seconds }: TimerDisplayProps) {
   const mins = Math.floor(seconds / 60).toString().padStart(2, "0");
   const secs = (seconds % 60).toString().padStart(2, "0");
   const pct = seconds / EXAM_DURATION;
@@ -226,8 +234,11 @@ export default function JAMBApp() {
     return () => clearTimeout(t);
   }, [step, timeLeft, examSubmitted]);
 
+  interface Errors {    name?: string;   regNo?: string;    email?: string;    phone?: string;    dob?: string; gender?: string;  };
+  
+
   const validateRegister = () => {
-    const errs = {};
+    const errs: Errors = {};
     if (!student.name.trim()) errs.name = "Full name is required";
     if (!student.regNo.trim()) errs.regNo = "Registration number is required";
     if (!student.email.trim() || !/\S+@\S+\.\S+/.test(student.email)) errs.email = "Valid email is required";
@@ -238,7 +249,13 @@ export default function JAMBApp() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleCourseSelect = (type) => {
+  interface SubjectOptionProps {
+    subject: string;
+    isSelected: boolean;
+    onClick: () => void;
+  }
+
+  const handleCourseSelect: React.MouseEventHandler<HTMLButtonElement> = (type) => {
     setCourseType(type);
     setSelectedSubjects(["English Language"]);
   };
@@ -332,7 +349,7 @@ export default function JAMBApp() {
     margin: "0 auto",
   };
 
-  const inputStyle = (err) => ({
+  const inputStyle = (err:Errors) => ({
     width: "100%", padding: "11px 14px", borderRadius: 8, fontSize: 14,
     border: `1.5px solid ${err ? "#e53e3e" : "#cde8cd"}`,
     outline: "none", boxSizing: "border-box",
