@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
         console.error('[callback] exchangeCodeForSession error:', error.message)
         return NextResponse.redirect(errorUrl)
       }
+      // After PKCE, user is fully signed in — send straight to dashboard
       return NextResponse.redirect(redirectTo)
     }
 
@@ -36,7 +37,9 @@ export async function GET(request: NextRequest) {
         console.error('[callback] verifyOtp error:', error.message)
         return NextResponse.redirect(errorUrl)
       }
-      return NextResponse.redirect(redirectTo)
+      // Email confirmed — redirect to login with a success message
+      // (user still needs to sign in with password)
+      return NextResponse.redirect(`${origin}/auth/login?message=confirmed`)
     }
 
   } catch (err) {
