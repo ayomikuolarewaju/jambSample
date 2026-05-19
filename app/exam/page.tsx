@@ -6,7 +6,7 @@ import { createClient } from '../lib/supabase/clients'
 import { useRouter } from 'next/navigation'
 import { Flag, ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react'
 import clsx from 'clsx'
-import type { Question, Subject, ExamRegistration, SelectedOption } from '@/types/database'
+import type { Question, Subject, ExamRegistration, SelectedOption } from '../../type/database'
 
 const EXAM_DURATION = 30 * 60 // 30 minutes
 const OPTIONS: SelectedOption[] = ['A', 'B', 'C', 'D']
