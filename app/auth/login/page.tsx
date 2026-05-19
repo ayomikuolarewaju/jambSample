@@ -1,15 +1,15 @@
 'use client'
-// app/auth/login/page.tsx
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { createClient } from '../../lib/supabase/clients'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, EyeOff } from 'lucide-react'
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter()
   const params = useSearchParams()
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPwd, setShowPwd] = useState(false)
@@ -21,10 +21,17 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+
     setLoading(true)
     setError('')
+
     const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
     if (error) {
       setError(error.message)
       setLoading(false)
@@ -39,8 +46,14 @@ export default function LoginPage() {
       <div className="w-full max-w-md animate-slide-up">
         <div className="text-center mb-8">
           <div className="text-5xl mb-3">🇳🇬</div>
-          <h1 className="text-2xl font-black text-green-800">Sign In to JAMB CBT</h1>
-          <p className="text-gray-500 text-sm mt-1">Access your candidate portal</p>
+
+          <h1 className="text-2xl font-black text-green-800">
+            Sign In to JAMB CBT
+          </h1>
+
+          <p className="text-gray-500 text-sm mt-1">
+            Access your candidate portal
+          </p>
         </div>
 
         {message === 'check_email' && (
@@ -48,6 +61,7 @@ export default function LoginPage() {
             📧 Check your email to confirm your account before signing in.
           </div>
         )}
+
         {errorParam && (
           <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg mb-5">
             ⚠ Authentication failed. Please try again.
@@ -66,27 +80,47 @@ export default function LoginPage() {
               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
                 Email Address
               </label>
-              <input type="email" placeholder="your@email.com"
-                value={email} onChange={e => setEmail(e.target.value)}
-                required className="input-field" />
+
+              <input
+                type="email"
+                placeholder="your@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="input-field"
+              />
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
                 Password
               </label>
+
               <div className="relative">
-                <input type={showPwd ? 'text' : 'password'} placeholder="Your password"
-                  value={password} onChange={e => setPassword(e.target.value)}
-                  required className="input-field pr-10" />
-                <button type="button" onClick={() => setShowPwd(!showPwd)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <input
+                  type={showPwd ? 'text' : 'password'}
+                  placeholder="Your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="input-field pr-10"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPwd(!showPwd)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                >
                   {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
 
-            <button type="submit" disabled={loading} className="btn-primary w-full mt-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full mt-2"
+            >
               {loading ? 'Signing in…' : '→ Sign In'}
             </button>
           </form>
@@ -94,9 +128,22 @@ export default function LoginPage() {
 
         <p className="text-center text-sm text-gray-500 mt-4">
           New candidate?{' '}
-          <Link href="/auth/register" className="text-green-700 font-semibold hover:underline">Register here</Link>
+          <Link
+            href="/auth/register"
+            className="text-green-700 font-semibold hover:underline"
+          >
+            Register here
+          </Link>
         </p>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginContent />
+    </Suspense>
   )
 }
