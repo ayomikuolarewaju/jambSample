@@ -2,7 +2,7 @@
 // app/exam/page.tsx
 
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { createClient } from '../lib/supabase/clients'
+import { createClient } from '@/lib/supabase/clients'
 import { useRouter } from 'next/navigation'
 import { Flag, ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react'
 import clsx from 'clsx'
@@ -15,9 +15,9 @@ interface SubjectWithQuestions extends Subject {
   questions: Question[]
 }
 
-export default function ExamPage() {
+export default async function ExamPage() {
   const router = useRouter()
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')

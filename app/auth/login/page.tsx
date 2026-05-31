@@ -1,12 +1,12 @@
 'use client'
 
 import { Suspense, useState } from 'react'
-import { createClient } from '../../lib/supabase/clients'
+import { createClient } from '../../../lib/supabase/server'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, EyeOff } from 'lucide-react'
 
-function LoginContent() {
+async function LoginContent() {
   const router = useRouter()
   const params = useSearchParams()
 
@@ -25,7 +25,7 @@ function LoginContent() {
     setLoading(true)
     setError('')
 
-    const supabase = createClient()
+    const supabase = await createClient()
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
