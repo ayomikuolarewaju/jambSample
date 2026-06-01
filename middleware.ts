@@ -6,7 +6,7 @@ export async function middleware(request: NextRequest) {
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
       cookies: {
         getAll: () => request.cookies.getAll(),
@@ -24,12 +24,19 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
+  // ── Fully public routes (no auth needed — guest exam flow lives here) ──
+  // /access, /guest-exam, /guest-results, /invite, /api/* are all public
+  const publicPrefixes = ['/access', '/guest-exam', '/guest-results', '/invite', '/api/']
+  if (publicPrefixes.some(p => pathname.startsWith(p))) return response
+
+  // ── Protect registered-user routes ─────────────────────────────────────
   const protectedRoutes = ['/dashboard', '/exam', '/results']
   if (!user && protectedRoutes.some(r => pathname.startsWith(r)))
     return NextResponse.redirect(new URL('/auth/login', request.url))
 
-  const guestRoutes = ['/', '/invite', '/auth/login', '/auth/register']
-  if (user && guestRoutes.includes(pathname))
+  // ── Redirect logged-in users away from guest-only pages ────────────────
+  const guestOnlyRoutes = ['/', '/auth/login', '/auth/register']
+  if (user && guestOnlyRoutes.includes(pathname))
     return NextResponse.redirect(new URL('/dashboard', request.url))
 
   return response
