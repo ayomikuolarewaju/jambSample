@@ -74,6 +74,8 @@ export interface Database {
   }
 }
 
+
+
 export type Profile          = Database['public']['Tables']['profiles']['Row']
 export type Subject          = Database['public']['Tables']['subjects']['Row']
 export type Question         = Database['public']['Tables']['questions']['Row']

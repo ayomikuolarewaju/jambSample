@@ -38,7 +38,7 @@ function GuestResultsContent() {
   }, [sessionId])
 
   const load = async () => {
-    const supabase = createClient()
+    const supabase = await createClient()
 
     const { data: sess } = await supabase
       .from('guest_sessions')

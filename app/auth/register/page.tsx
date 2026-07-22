@@ -45,7 +45,7 @@ export default function RegisterPage() {
     e.preventDefault()
     if (!isValid) return
     setLoading(true); setError('')
-    const supabase  = createClient()
+    const supabase  = await createClient()
     const authEmail = `${form.regNumber.trim().toLowerCase().replace(/\s+/g,'')}@jambcbt.local`
 
     const { error: signUpError } = await supabase.auth.signUp({

@@ -24,7 +24,7 @@ function LoginForm() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true); setError('')
-    const supabase  = createClient()
+    const supabase  = await createClient()
     const authEmail = `${regNumber.trim().toLowerCase().replace(/\s+/g,'')}@jambcbt.local`
     const { error } = await supabase.auth.signInWithPassword({ email: authEmail, password })
     if (error) { setError(friendlyError(error.message)); setLoading(false) }

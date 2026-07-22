@@ -10,6 +10,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { CheckCircle, BookOpen, FlaskConical, Briefcase, Palette } from 'lucide-react'
+
 import clsx from 'clsx'
 
 const COURSE_GROUPS = {

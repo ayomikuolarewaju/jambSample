@@ -15,12 +15,12 @@ const OPTIONS = ['A','B','C','D'] as const
 
 interface SubjectWithQuestions extends Subject { questions: Question[] }
 
-function GuestExamContent() {
+async function GuestExamContent() {
   const router  = useRouter()
   const params  = useSearchParams()
   const sessionId = params.get('session') || ''
 
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const [loading,       setLoading]       = useState(true)
   const [error,         setError]         = useState('')
