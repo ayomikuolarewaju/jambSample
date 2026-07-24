@@ -33,7 +33,7 @@ export default function ExamClient({
   initialTimeLeft,
 }: ExamClientProps) {
   const router = useRouter()
-  const supabase = createClient()
+  const [supabase, setSupabase] = useState<ReturnType<typeof createClient> | null>(null)
 
   const [subjects, setSubjects] = useState<SubjectWithQuestions[]>(initialSubjects)
   const [subjectIdx, setSubjectIdx] = useState(0)
@@ -47,6 +47,12 @@ export default function ExamClient({
 
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const autoSubmittedRef = useRef(false)
+
+  // Initialize Supabase client
+  useEffect(() => {
+    const client = createClient()
+    setSupabase(client)
+  }, [])
 
   // Initialize answers from saved data
   useEffect(() => {
@@ -87,6 +93,7 @@ export default function ExamClient({
       option: string | null,
       isFlagged: boolean
     ) => {
+      if (!supabase) return
       await supabase.from('exam_answers').upsert(
         {
           session_id: sessionId,
@@ -119,7 +126,7 @@ export default function ExamClient({
   }
 
   const submitExam = async (auto = false) => {
-    if (submitting) return
+    if (submitting || !supabase) return
     setSubmitting(true)
     if (timerRef.current) clearInterval(timerRef.current)
 

@@ -9,8 +9,8 @@ interface Subject { id: string; name: string; code: string; category: string; is
 const CATEGORIES = ['compulsory','science','commercial','arts']
 const EMPTY = { name:'', code:'', category:'science', is_active: true }
 
-export default async function SubjectsPage() {
-  const supabase = await createClient()
+export default function SubjectsPage() {
+  const [supabase, setSupabase] = useState<ReturnType<typeof createClient> | null>(null)
   const [subjects, setSubjects] = useState<Subject[]>([])
   const [loading,  setLoading]  = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -20,14 +20,23 @@ export default async function SubjectsPage() {
   const [error,    setError]    = useState('')
   const [success,  setSuccess]  = useState('')
 
+  // Initialize Supabase client
+  useEffect(() => {
+    const client = createClient()
+  setSupabase(client)
+  }, [])
+
   const load = async () => {
+    if (!supabase) return
     setLoading(true)
     const { data } = await supabase.from('subjects').select('*').order('category').order('name')
     setSubjects(data || [])
     setLoading(false)
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { 
+    if (supabase) load() 
+  }, [supabase])
 
   const setF = (k: keyof typeof form) =>
     (e: React.ChangeEvent<HTMLInputElement|HTMLSelectElement>) =>
@@ -40,6 +49,7 @@ export default async function SubjectsPage() {
   }
 
   const handleSave = async (e: React.FormEvent) => {
+    if (!supabase) return
     e.preventDefault()
     setSaving(true); setError('')
     const payload = { name: form.name.trim(), code: form.code.trim().toUpperCase(), category: form.category, is_active: form.is_active }
@@ -56,6 +66,7 @@ export default async function SubjectsPage() {
   }
 
   const toggleActive = async (id: string, current: boolean) => {
+    if (!supabase) return
     await supabase.from('subjects').update({ is_active: !current }).eq('id', id)
     load()
   }

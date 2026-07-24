@@ -93,8 +93,9 @@ export default function ExamRegistrationCard({ userId, activeSession }: Props) {
     }
 
     localStorage.removeItem('jamb_combination')
+    // Add small delay to ensure database is committed
+    await new Promise(resolve => setTimeout(resolve, 100))
     router.push('/exam')
-    router.refresh()
   }
 
   // In-progress → resume

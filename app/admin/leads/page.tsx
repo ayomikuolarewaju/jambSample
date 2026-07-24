@@ -11,21 +11,28 @@ interface Lead {
   expires_at: string|null
 }
 
-export default async function LeadsPage() {
-  const supabase = await createClient()
+export default function LeadsPage() {
+  const [supabase, setSupabase] = useState<ReturnType<typeof createClient> | null>(null)
   const [leads,   setLeads]   = useState<Lead[]>([])
   const [loading, setLoading] = useState(true)
   const [search,  setSearch]  = useState('')
   const [filter,  setFilter]  = useState<'all'|'registered'|'pending'>('all')
 
+  // Initialize Supabase client
   useEffect(() => {
+    const client = createClient()
+    setSupabase(client)
+  }, [])
+
+  useEffect(() => {
+    if (!supabase) return
     (async () => {
       const { data } = await supabase
         .from('invite_leads').select('*').order('invited_at', { ascending: false })
       setLeads(data || [])
       setLoading(false)
     })()
-  }, [])
+  }, [supabase])
 
   const filtered = leads.filter(l => {
     const matchSearch = !search || l.email.toLowerCase().includes(search.toLowerCase()) ||

@@ -29,8 +29,8 @@ const EMPTY_FORM   = {
   explanation:'', difficulty:'medium', year:'', is_active: true,
 }
 
-export default async function QuestionsPage() {
-  const supabase = await createClient()
+export default function QuestionsPage() {
+  const [supabase, setSupabase] = useState<ReturnType<typeof createClient> | null>(null)
 
   const [questions,      setQuestions]      = useState<Question[]>([])
   const [subjects,       setSubjects]       = useState<Subject[]>([])
@@ -55,7 +55,14 @@ export default async function QuestionsPage() {
   // Delete confirm
   const [deleteId,       setDeleteId]       = useState<string|null>(null)
 
+  // Initialize Supabase client
+  useEffect(() => {
+    const client = createClient()
+     setSupabase(client)
+  }, [])
+
   const load = useCallback(async () => {
+    if (!supabase) return
     setLoading(true)
     const { data: subs }  = await supabase.from('subjects').select('id,name,code').order('name')
     const { data: qs }    = await supabase
@@ -65,9 +72,11 @@ export default async function QuestionsPage() {
     setSubjects(subs || [])
     setQuestions(qs || [])
     setLoading(false)
-  }, [])
+  }, [supabase])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => { 
+    if (supabase) load() 
+  }, [supabase, load])
 
   const setF = (k: keyof typeof form) =>
     (e: React.ChangeEvent<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>) =>

@@ -60,7 +60,7 @@ function AccessContent() {
   }, [token])
 
   const validate = async () => {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: lead, error } = await supabase
       .from('invite_leads')
       .select('id, first_name, email, expires_at, token_used_at')
@@ -118,7 +118,7 @@ function AccessContent() {
     if (!canStart) return
     setStage('starting')
 
-    const supabase = createClient()
+    const supabase = await createClient()
 
     // Get subject IDs for English + electives
     const subjectNames = ['English Language', ...electives]

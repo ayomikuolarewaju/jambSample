@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import ExamClient from './exam-client'
 import type { Question, Subject } from '@/types/database'
