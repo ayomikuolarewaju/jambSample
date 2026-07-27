@@ -1,77 +1,60 @@
-// app/page.tsx — Landing page (pure static, no server calls)
-// Middleware handles redirect for logged-in users → /dashboard
+// app/page.tsx — Landing page
 import Link from 'next/link'
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50">
-
-      {/* Nav */}
-      <nav className="bg-white/80 backdrop-blur border-b border-green-100 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl">🇳🇬</span>
-            <div>
-              <p className="text-green-800 font-black text-lg leading-none">JAMB CBT</p>
-              <p className="text-gray-400 text-[10px] tracking-widest uppercase">Unified Tertiary Matriculation</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/auth/login" className="btn-secondary text-sm py-2 px-4">Sign In</Link>
-            <Link href="/auth/register" className="btn-primary text-sm py-2 px-4">Register</Link>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero */}
-      <section className="max-w-4xl mx-auto px-4 pt-20 pb-12 text-center animate-fade-in">
-        <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-6">
-          🎓 2025/2026 UTME Season Now Open
-        </div>
-        <h1 className="text-5xl md:text-6xl font-black text-gray-900 leading-tight mb-6">
-          Practice Your <br />
-          <span className="text-green-700">JAMB CBT</span> Exam
+    <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-gray-900
+                    flex flex-col items-center justify-center p-6 text-center">
+      <div className="max-w-2xl animate-slide-up">
+        <div className="text-6xl mb-4">🇳🇬</div>
+        <h1 className="text-4xl sm:text-5xl font-black text-white leading-tight mb-4">
+          JAMB CBT<br/>
+          <span className="text-green-400">Practice Portal</span>
         </h1>
-        <p className="text-gray-500 text-lg max-w-xl mx-auto mb-10">
-          Register with your JAMB reg number, choose your subject combination, and take a real 30-minute timed exam. Get your score out of 400 instantly.
+        <p className="text-green-200 text-lg mb-10 leading-relaxed max-w-xl mx-auto">
+          Prepare for your JAMB UTME with our free Computer-Based Test practice platform.
+          Real exam conditions, instant results, and detailed subject breakdowns.
         </p>
-        <div className="flex items-center justify-center gap-4 flex-wrap mb-4">
-          <Link href="/auth/register" className="btn-primary text-base px-8 py-3 shadow-lg">
-            Register Now →
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
+          <Link href="/auth/register"
+            className="bg-white text-green-800 font-black px-8 py-4 rounded-2xl
+                       hover:bg-green-50 transition-all active:scale-[.97] text-lg shadow-lg">
+            Register &amp; Start Practising
           </Link>
-          <Link href="/auth/login" className="btn-secondary text-base px-8 py-3">
-            I Have an Account
+          <Link href="/auth/login"
+            className="border-2 border-white/30 text-white font-bold px-8 py-4 rounded-2xl
+                       hover:bg-white/10 transition-all active:scale-[.97] text-lg">
+            Sign In
           </Link>
         </div>
-        <p className="text-sm text-gray-500">
-          Want your registration link emailed to you?{' '}
-          <Link href="/invite" className="text-green-700 font-semibold hover:underline">
-            Send me a link →
+
+        <div className="grid grid-cols-3 gap-4 max-w-md mx-auto">
+          {[
+            { icon: '📚', label: '21 Subjects', sub: 'All JAMB subjects' },
+            { icon: '⏱',  label: '30 Minutes', sub: 'Real exam timer' },
+            { icon: '📊', label: 'Instant Results', sub: 'Per-subject scores' },
+          ].map(f => (
+            <div key={f.label} className="bg-white/10 rounded-2xl p-4 text-center">
+              <div className="text-2xl mb-1">{f.icon}</div>
+              <p className="text-white font-bold text-sm">{f.label}</p>
+              <p className="text-green-300 text-xs mt-0.5">{f.sub}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-8 text-green-400 text-xs">
+          <Link href="/invite" className="hover:text-green-200 transition-colors">
+            Received an invite link? Click here →
           </Link>
-        </p>
-      </section>
-
-      {/* Features */}
-      <section className="max-w-5xl mx-auto px-4 pb-20 grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[
-          { icon: '📝', title: 'Simple Registration', desc: 'Sign up with your JAMB reg number and password. No email confirmation required — you are in immediately.' },
-          { icon: '📚', title: 'Subject Combination', desc: 'Choose Science, Commercial, or Arts. English is compulsory; pick 3 electives to complete your 4-subject combination.' },
-          { icon: '⏱️', title: '30-Minute Timed Exam', desc: 'Countdown timer, question navigator, flag-for-review — exactly how the real JAMB CBT feels.' },
-          { icon: '📊', title: 'Instant Score', desc: 'Submit and get your total score out of 400 plus a per-subject breakdown immediately.' },
-          { icon: '🔒', title: 'Your Data is Safe', desc: 'Row-level security on every table. Only you can see your results and answers.' },
-          { icon: '📧', title: 'Email Invite Link', desc: 'Share a registration link by email. We collect emails for updates — no spam, no confirmation required.' },
-        ].map(f => (
-          <div key={f.title} className="card hover:shadow-md transition-shadow animate-slide-up">
-            <div className="text-4xl mb-3">{f.icon}</div>
-            <h3 className="font-bold text-gray-800 mb-2">{f.title}</h3>
-            <p className="text-gray-500 text-sm leading-relaxed">{f.desc}</p>
-          </div>
-        ))}
-      </section>
-
-      <footer className="text-center py-6 text-xs text-gray-400 border-t border-gray-100">
+        </div>
+      </div>
+      <div>
+        <footer className="text-center py-6 text-xs text-gray-400 border-t border-gray-100">
         © {new Date().getFullYear()} JAMB CBT Practice Platform · Nigeria · All rights reserved
       </footer>
-    </main>
+      </div>
+    </div>
   )
 }
+
