@@ -13,11 +13,9 @@ export default function HomePage() {
           
           {/* Left: Text content */}
           <div className="flex-1 text-center lg:text-left">
-            <div className="text-6xl mb-4">🇳🇬</div>
-            <h1 className="text-4xl sm:text-5xl font-black text-white leading-tight mb-4">
-              JAMB CBT<br/>
-              <span className="text-green-400">Practice Portal</span>
-            </h1>
+            <div >
+               <Image src="/images/ekofreecbthub_logo.svg" alt="Hero" width={300} height={100} className='rounded-3xl shadow-2xl border-4 border-white/10 transform hover:scale-[1.02] transition-transform duration-500'/>
+            </div>
             <p className="text-green-200 text-lg mb-10 leading-relaxed max-w-xl mx-auto lg:mx-0">
               Prepare for your JAMB UTME with our free Computer-Based Test practice platform.
               Real exam conditions, instant results, and detailed subject breakdowns.
@@ -43,7 +41,7 @@ export default function HomePage() {
                             transform hover:scale-[1.02] transition-transform duration-500">
               <Image
                 src="/images/student.png"
-                alt="Student preparing for JAMB exam with laptop and study notes"
+                alt="Student "
                 width={800}
                 height={534}
                 className="w-full h-auto object-cover"
@@ -53,7 +51,7 @@ export default function HomePage() {
               <div className="absolute inset-0 bg-gradient-to-t from-green-900/40 to-transparent" />
               
               {/* Floating badge */}
-              <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg">
+              <div className="absolute bottom-1 left-40 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg">
                 <p className="text-green-800 font-bold text-sm">📝 Practice makes perfect</p>
               </div>
             </div>
