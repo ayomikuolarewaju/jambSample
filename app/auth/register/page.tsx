@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, EyeOff, UserPlus, CheckCircle } from 'lucide-react'
 import clsx from 'clsx'
+import Image from 'next/image'
 
 const NIGERIAN_STATES = [
   'Abia','Adamawa','Akwa Ibom','Anambra','Bauchi','Bayelsa','Benue','Borno',
@@ -132,8 +133,9 @@ export default function RegisterPage() {
 
         {/* Logo */}
         <div className="text-center mb-6">
-          <div className="text-4xl mb-2">🇳🇬</div>
-          <h1 className="text-2xl font-black text-white">JAMB CBT Portal</h1>
+          <div className="mb-6" >
+              <Image src="/images/logo.png" alt="Hero" width={200} height={200} className='rounded-3xl shadow-2xl border-4 border-white/10 transform hover:scale-[1.02] transition-transform duration-500'/>
+          </div>
           <p className="text-green-300 text-sm mt-1">Candidate Registration</p>
         </div>
 

@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, EyeOff, LogIn } from 'lucide-react'
+import Image from 'next/image'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -47,8 +48,9 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="text-5xl mb-3">🇳🇬</div>
-          <h1 className="text-2xl font-black text-white">JAMB CBT Portal</h1>
+          <div className="mb-6" >
+              <Image src="/images/logo.png" alt="Hero" width={200} height={200} className='rounded-3xl shadow-2xl border-4 border-white/10 transform hover:scale-[1.02] transition-transform duration-500'/>
+          </div>
           <p className="text-green-300 text-sm mt-1">Candidate Sign In</p>
         </div>
 
