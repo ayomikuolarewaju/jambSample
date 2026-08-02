@@ -13,8 +13,8 @@ export default function HomePage() {
           
           {/* Left: Text content */}
           <div className="flex-1 text-center lg:text-left">
-            <div >
-               <Image src="/images/ekofreecbthub_logo.svg" alt="Hero" width={300} height={100} className='rounded-3xl shadow-2xl border-4 border-white/10 transform hover:scale-[1.02] transition-transform duration-500'/>
+            <div className="mb-6" >
+               <Image src="/images/logo.png" alt="Hero" width={100} height={100} className='rounded-3xl shadow-2xl border-4 border-white/10 transform hover:scale-[1.02] transition-transform duration-500'/>
             </div>
             <p className="text-green-200 text-lg mb-10 leading-relaxed max-w-xl mx-auto lg:mx-0">
               Prepare for your JAMB UTME with our free Computer-Based Test practice platform.

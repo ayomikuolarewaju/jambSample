@@ -52,18 +52,19 @@ async function GuestExamContent() {
       .single()
 
     if (!session) { setError('Session not found. Please use your email link again.'); setLoading(false); return }
-    if (session.submitted_at) { router.push(`/guest-results?session=${sessionId}`); return }
+    const sessionRow = session as any
+    if (sessionRow.submitted_at) { router.push(`/guest-results?session=${sessionId}`); return }
 
-    setFirstName(session.first_name || 'Candidate')
-    if (session.time_remaining) setTimeLeft(session.time_remaining)
+    setFirstName(sessionRow.first_name || 'Candidate')
+    if (sessionRow.time_remaining) setTimeLeft(sessionRow.time_remaining)
 
     // Load subjects in registration order
     const { data: subjectsData } = await supabase
-      .from('subjects').select('*').in('id', session.subject_ids)
+      .from('subjects').select('*').in('id', sessionRow.subject_ids)
 
     if (!subjectsData) { setError('Failed to load subjects.'); setLoading(false); return }
 
-    const ordered = session.subject_ids
+    const ordered = sessionRow.subject_ids
       .map((id: string) => subjectsData.find((s: Subject) => s.id === id))
       .filter(Boolean)
 
@@ -83,7 +84,8 @@ async function GuestExamContent() {
     if (existingAnswers?.length) {
       const ans: Record<string, string | null> = {}
       const flg: Record<string, boolean> = {}
-      existingAnswers.forEach(a => {
+      const existingAnswersRow = existingAnswers as any[]
+      existingAnswersRow.forEach(a => {
         ans[a.question_id] = a.selected_option
         flg[a.question_id] = a.is_flagged
       })

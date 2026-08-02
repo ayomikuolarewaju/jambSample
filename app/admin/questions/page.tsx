@@ -10,6 +10,8 @@ import {
   ChevronDown, ChevronUp, BookOpen, Filter
 } from 'lucide-react'
 import clsx from 'clsx'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '@/types/database'
 
 interface Subject { id: string; name: string; code: string }
 interface Question {
@@ -30,7 +32,7 @@ const EMPTY_FORM   = {
 }
 
 export default function QuestionsPage() {
-  const [supabase, setSupabase] = useState<ReturnType<typeof createClient> | null>(null)
+  const [supabase, setSupabase] = useState<SupabaseClient<Database> | null>(null)
 
   const [questions,      setQuestions]      = useState<Question[]>([])
   const [subjects,       setSubjects]       = useState<Subject[]>([])
@@ -58,7 +60,7 @@ export default function QuestionsPage() {
   // Initialize Supabase client
   useEffect(() => {
     const client = createClient()
-     setSupabase(client)
+    setSupabase(client)
   }, [])
 
   const load = useCallback(async () => {
@@ -116,6 +118,8 @@ export default function QuestionsPage() {
     }
     setSaving(true); setError('')
 
+    if (!supabase) { setError('Unable to connect to database'); setSaving(false); return }
+
     const payload = {
       subject_id:     form.subject_id,
       question_text:  form.question_text.trim(),
@@ -131,11 +135,11 @@ export default function QuestionsPage() {
     }
 
     if (editingId) {
-      const { error: err } = await supabase.from('questions').update(payload).eq('id', editingId)
+      const { error: err } = await (supabase.from('questions') as any).update(payload).eq('id', editingId)
       if (err) { setError(err.message); setSaving(false); return }
       setSuccess('Question updated successfully.')
     } else {
-      const { error: err } = await supabase.from('questions').insert(payload)
+      const { error: err } = await (supabase.from('questions') as any).insert(payload)
       if (err) { setError(err.message); setSaving(false); return }
       setSuccess('Question added successfully.')
     }
@@ -146,7 +150,8 @@ export default function QuestionsPage() {
   }
 
   const handleDelete = async (id: string) => {
-    const { error: err } = await supabase.from('questions').delete().eq('id', id)
+    if (!supabase) return
+    const { error: err } = await (supabase.from('questions') as any).delete().eq('id', id)
     if (!err) { setDeleteId(null); load() }
   }
 

@@ -1,104 +1,45 @@
-'use client'
-// app/admin/dashboard/page.tsx
-// Client component — reads session from browser, avoids server cookie issues
-
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import AdminLogoutButton from '@/components/admin/AdminLogoutButton'
 import { FileQuestion, BookOpen, Mail, Users, BarChart3, PlusCircle } from 'lucide-react'
+import type { Admin } from '@/types/database'
 
-interface Stats {
-  questionCount:  number
-  subjectCount:   number
-  leadCount:      number
-  registeredCount: number
-  guestExamCount: number
-}
+export default async function AdminDashboardPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/admin/login')
 
-interface Admin {
-  full_name: string
-  role: string
-}
+  const { data: admin } = await supabase
+    .from('admins').select('full_name,role').eq('email', user.email!).single()
+  if (!admin) redirect('/admin/login')
 
-export default function AdminDashboardPage() {
-  const router   = useRouter()
-  const [admin,  setAdmin]  = useState<Admin | null>(null)
-  const [stats,  setStats]  = useState<Stats | null>(null)
-  const [loading, setLoading] = useState(true)
+  const adminRow = admin as unknown as Admin
 
-  useEffect(() => {
-    async function load() {
-      const supabase = createClient()
+  const [
+    { count: questionCount },
+    { count: subjectCount },
+    { count: leadCount },
+    { count: registeredCount },
+    { count: guestExamCount },
+  ] = await Promise.all([
+    supabase.from('questions').select('*', { count:'exact', head:true }),
+    supabase.from('subjects').select('*', { count:'exact', head:true }),
+    supabase.from('invite_leads').select('*', { count:'exact', head:true }),
+    supabase.from('exam_sessions').select('*', { count:'exact', head:true }).not('submitted_at','is',null),
+    supabase.from('guest_sessions').select('*', { count:'exact', head:true }).not('submitted_at','is',null),
+  ])
 
-      // Check session
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
-      if (userError || !user) { router.push('/admin/login'); return }
-
-      // Verify admin record
-      const { data: adminData } = await supabase
-        .from('admins')
-        .select('full_name, role, is_active')
-        .eq('email', user.email!)
-        .maybeSingle()
-
-      if (!adminData || !adminData.is_active) {
-        await supabase.auth.signOut()
-        router.push('/admin/login')
-        return
-      }
-
-      setAdmin({ full_name: adminData.full_name, role: adminData.role })
-
-      // Fetch stats
-      const [
-        { count: qCount },
-        { count: sCount },
-        { count: lCount },
-        { count: rCount },
-        { count: gCount },
-      ] = await Promise.all([
-        supabase.from('questions').select('*', { count: 'exact', head: true }),
-        supabase.from('subjects').select('*', { count: 'exact', head: true }),
-        supabase.from('invite_leads').select('*', { count: 'exact', head: true }),
-        supabase.from('exam_sessions').select('*', { count: 'exact', head: true }).not('submitted_at', 'is', null),
-        supabase.from('guest_sessions').select('*', { count: 'exact', head: true }).not('submitted_at', 'is', null),
-      ])
-
-      setStats({
-        questionCount:   qCount ?? 0,
-        subjectCount:    sCount ?? 0,
-        leadCount:       lCount ?? 0,
-        registeredCount: rCount ?? 0,
-        guestExamCount:  gCount ?? 0,
-      })
-
-      setLoading(false)
-    }
-    load()
-  }, [])
-
-  if (loading) return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-      <div className="text-center">
-        <div className="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"/>
-        <p className="text-gray-400 text-sm">Loading dashboard…</p>
-      </div>
-    </div>
-  )
-
-  const statCards = [
-    { label: 'Total Questions',   value: stats?.questionCount  ?? 0, icon: FileQuestion, color: 'bg-blue-50 text-blue-700',    border: 'border-blue-200' },
-    { label: 'Subjects',          value: stats?.subjectCount   ?? 0, icon: BookOpen,     color: 'bg-purple-50 text-purple-700', border: 'border-purple-200' },
-    { label: 'Email Leads',       value: stats?.leadCount      ?? 0, icon: Mail,         color: 'bg-yellow-50 text-yellow-700', border: 'border-yellow-200' },
-    { label: 'Guest Exams Taken', value: stats?.guestExamCount ?? 0, icon: Users,        color: 'bg-green-50 text-green-700',   border: 'border-green-200' },
-    { label: 'Registered Exams',  value: stats?.registeredCount?? 0, icon: BarChart3,    color: 'bg-red-50 text-red-700',       border: 'border-red-200' },
+  const stats = [
+    { label:'Total Questions',   value: questionCount  ?? 0, icon: FileQuestion, color:'bg-blue-50 text-blue-700',    border:'border-blue-200' },
+    { label:'Subjects',          value: subjectCount   ?? 0, icon: BookOpen,     color:'bg-purple-50 text-purple-700', border:'border-purple-200' },
+    { label:'Email Leads',       value: leadCount      ?? 0, icon: Mail,         color:'bg-yellow-50 text-yellow-700', border:'border-yellow-200' },
+    { label:'Guest Exams Taken', value: guestExamCount ?? 0, icon: Users,        color:'bg-green-50 text-green-700',   border:'border-green-200' },
+    { label:'Registered Exams',  value: registeredCount?? 0, icon: BarChart3,    color:'bg-red-50 text-red-700',       border:'border-red-200' },
   ]
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navbar */}
       <nav className="bg-gray-900 border-b border-gray-800 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -111,14 +52,10 @@ export default function AdminDashboardPage() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            {admin && (
-              <span className="text-gray-400 text-sm hidden sm:block">
-                {admin.full_name}
-                <span className="ml-2 text-xs bg-green-900 text-green-400 px-2 py-0.5 rounded-full">
-                  {admin.role}
-                </span>
-              </span>
-            )}
+            <span className="text-gray-400 text-sm hidden sm:block">
+            {adminRow.full_name}
+            <span className="ml-2 text-xs bg-green-900 text-green-400 px-2 py-0.5 rounded-full">{adminRow.role}</span>
+            </span>
             <AdminLogoutButton/>
           </div>
         </div>
@@ -127,12 +64,12 @@ export default function AdminDashboardPage() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-2xl font-black text-gray-800">Dashboard</h1>
-          <p className="text-gray-500 text-sm mt-1">Manage questions, subjects and exam leads.</p>
+          <p className="text-gray-500 text-sm mt-1">Manage questions, subjects, and exam leads.</p>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-          {statCards.map(s => (
+          {stats.map(s => (
             <div key={s.label} className={`card border ${s.border} animate-fade-in`}>
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${s.color}`}>
                 <s.icon size={20}/>
@@ -145,7 +82,6 @@ export default function AdminDashboardPage() {
 
         {/* Quick actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
           <div className="card hover:shadow-md transition-shadow">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -153,18 +89,13 @@ export default function AdminDashboardPage() {
               </div>
               <div>
                 <p className="font-bold text-gray-800">Question Bank</p>
-                <p className="text-xs text-gray-400">{stats?.questionCount ?? 0} questions</p>
+                <p className="text-xs text-gray-400">{questionCount} questions</p>
               </div>
             </div>
-            <p className="text-gray-500 text-sm mb-4">
-              Add, edit, or delete exam questions by subject and difficulty.
-            </p>
+            <p className="text-gray-500 text-sm mb-4">Add, edit, or delete exam questions by subject and difficulty.</p>
             <div className="flex gap-2">
-              <Link href="/admin/questions" className="btn-secondary text-sm py-2 px-4 flex-1 text-center">
-                View All
-              </Link>
-              <Link href="/admin/questions?action=new"
-                className="btn-primary text-sm py-2 px-4 flex items-center gap-1">
+              <Link href="/admin/questions" className="btn-secondary text-sm py-2 px-4 flex-1 text-center">View All</Link>
+              <Link href="/admin/questions?action=new" className="btn-primary text-sm py-2 px-4 flex items-center gap-1">
                 <PlusCircle size={14}/>Add
               </Link>
             </div>
@@ -177,15 +108,11 @@ export default function AdminDashboardPage() {
               </div>
               <div>
                 <p className="font-bold text-gray-800">Subjects</p>
-                <p className="text-xs text-gray-400">{stats?.subjectCount ?? 0} subjects</p>
+                <p className="text-xs text-gray-400">{subjectCount} subjects</p>
               </div>
             </div>
-            <p className="text-gray-500 text-sm mb-4">
-              Manage available subjects. Enable or disable them for exams.
-            </p>
-            <Link href="/admin/subjects" className="btn-secondary text-sm py-2 px-4 block text-center">
-              Manage Subjects
-            </Link>
+            <p className="text-gray-500 text-sm mb-4">Manage available subjects. Enable or disable them for the exam.</p>
+            <Link href="/admin/subjects" className="btn-secondary text-sm py-2 px-4 block text-center">Manage Subjects</Link>
           </div>
 
           <div className="card hover:shadow-md transition-shadow">
@@ -195,17 +122,12 @@ export default function AdminDashboardPage() {
               </div>
               <div>
                 <p className="font-bold text-gray-800">Email Leads</p>
-                <p className="text-xs text-gray-400">{stats?.leadCount ?? 0} leads collected</p>
+                <p className="text-xs text-gray-400">{leadCount} leads collected</p>
               </div>
             </div>
-            <p className="text-gray-500 text-sm mb-4">
-              View students who received invite links and track registrations.
-            </p>
-            <Link href="/admin/leads" className="btn-secondary text-sm py-2 px-4 block text-center">
-              View Leads
-            </Link>
+            <p className="text-gray-500 text-sm mb-4">View students who received invite links and track registrations.</p>
+            <Link href="/admin/leads" className="btn-secondary text-sm py-2 px-4 block text-center">View Leads</Link>
           </div>
-
         </div>
       </div>
     </div>

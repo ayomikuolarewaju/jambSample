@@ -13,6 +13,8 @@ export default async function DashboardPage() {
   const { data: profile } = await supabase
     .from('profiles').select('*').eq('id', user.id).single()
 
+  const profileRow = profile as any
+
   // ── All COMPLETED attempts (submitted_at is not null) ─────────────────
   const { data: attempts } = await supabase
     .from('exam_registrations')
@@ -44,12 +46,13 @@ export default async function DashboardPage() {
     .maybeSingle()
 
   // Only treat as active if the session is NOT yet submitted
-  const rawSession = Array.isArray(activeReg?.exam_sessions)
-    ? activeReg?.exam_sessions[0]
-    : activeReg?.exam_sessions
+  const activeRegRow = activeReg as any
+  const rawSession = Array.isArray(activeRegRow?.exam_sessions)
+    ? activeRegRow.exam_sessions[0]
+    : activeRegRow?.exam_sessions
 
   const activeSession = (rawSession && !rawSession.submitted_at)
-    ? { id: rawSession.id, registration_id: activeReg!.id, submitted_at: null }
+    ? { id: rawSession.id, registration_id: activeRegRow.id, submitted_at: null }
     : null
 
   // ── Stats ─────────────────────────────────────────────────────────────
@@ -86,7 +89,7 @@ export default async function DashboardPage() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-600 hidden sm:block font-medium">{profile?.full_name}</span>
+            <span className="text-sm text-gray-600 hidden sm:block font-medium">{profileRow?.full_name}</span>
             <LogoutButton/>
           </div>
         </div>
@@ -97,10 +100,10 @@ export default async function DashboardPage() {
         {/* Welcome banner */}
         <div className="bg-gradient-to-r from-green-700 to-green-600 rounded-2xl p-6 text-white animate-fade-in">
           <p className="text-green-200 text-sm mb-1">Welcome back,</p>
-          <h1 className="text-2xl font-black">{profile?.full_name || 'Candidate'}</h1>
+          <h1 className="text-2xl font-black">{profileRow?.full_name || 'Candidate'}</h1>
           <div className="flex flex-wrap gap-4 mt-2 text-sm text-green-200">
-            <span>Reg No: <strong className="text-white">{profile?.reg_number}</strong></span>
-            {profile?.state_of_origin && <span>📍 {profile.state_of_origin}</span>}
+            <span>Reg No: <strong className="text-white">{profileRow?.reg_number}</strong></span>
+            {profileRow?.state_of_origin && <span>📍 {profileRow.state_of_origin}</span>}
             <span>🎯 {totalAttempts} attempt{totalAttempts !== 1 ? 's' : ''} completed</span>
           </div>
         </div>
@@ -132,12 +135,12 @@ export default async function DashboardPage() {
             <h3 className="section-title text-sm">Profile Details</h3>
             <dl className="space-y-2 text-sm">
               {([
-                ['Full Name',     profile?.full_name],
-                ['Reg Number',    profile?.reg_number],
-                ['Gender',        profile?.gender],
-                ['Date of Birth', profile?.date_of_birth],
-                ['State',         profile?.state_of_origin],
-                ['Email',         profile?.contact_email || '—'],
+                ['Full Name',     profileRow?.full_name],
+                ['Reg Number',    profileRow?.reg_number],
+                ['Gender',        profileRow?.gender],
+                ['Date of Birth', profileRow?.date_of_birth],
+                ['State',         profileRow?.state_of_origin],
+                ['Email',         profileRow?.contact_email || '—'],
               ] as [string, string|null|undefined][]).map(([k, v]) => (
                 <div key={k} className="flex justify-between gap-2">
                   <dt className="text-gray-400 flex-shrink-0">{k}</dt>

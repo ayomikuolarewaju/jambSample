@@ -16,6 +16,8 @@ export default async function ResultsPage({ searchParams }: Props) {
   const { data: profile } = await supabase
     .from('profiles').select('*').eq('id', user.id).single()
 
+  const profileRow = profile as any
+
   // If a specific session ID is passed, load that attempt
   // Otherwise fall back to the most recent completed session
   let session, registration
@@ -26,8 +28,9 @@ export default async function ResultsPage({ searchParams }: Props) {
     session = sess
 
     if (session) {
+      const sessionRow = session as any
       const { data: reg } = await supabase
-        .from('exam_registrations').select('*').eq('id', session.registration_id).single()
+        .from('exam_registrations').select('*').eq('id', sessionRow.registration_id).single()
       registration = reg
     }
   } else {
@@ -40,17 +43,20 @@ export default async function ResultsPage({ searchParams }: Props) {
 
     if (registration) {
       const { data: sess } = await supabase
-        .from('exam_sessions').select('*').eq('registration_id', registration.id).single()
+        .from('exam_sessions').select('*').eq('registration_id', (registration as any).id).single()
       session = sess
     }
   }
 
-  if (!session?.submitted_at || !registration) redirect('/dashboard')
+  const sessionRow = session as any
+  const registrationRow = registration as any
+
+  if (!sessionRow?.submitted_at || !registrationRow) redirect('/dashboard')
 
   const { data: subjectResults } = await supabase
     .from('subject_results')
     .select('*, subjects(name,code)')
-    .eq('session_id', session.id)
+    .eq('session_id', sessionRow.id)
 
   // Best score for this user
   const { data: allSessions } = await supabase
@@ -61,10 +67,10 @@ export default async function ResultsPage({ searchParams }: Props) {
 
   const allScores    = (allSessions || []).map((s: any) => s.total_score ?? 0)
   const bestScore    = allScores.length ? Math.max(...allScores) : 0
-  const isThisBest   = Math.round(session.total_score ?? 0) >= Math.round(bestScore)
+  const isThisBest   = Math.round(sessionRow.total_score ?? 0) >= Math.round(bestScore)
   const totalAttempts = allScores.length
 
-  const totalScore = Math.round(session.total_score ?? 0)
+  const totalScore = Math.round(sessionRow.total_score ?? 0)
   const pct        = Math.round((totalScore / 400) * 100)
 
   const perf =
@@ -96,15 +102,15 @@ export default async function ResultsPage({ searchParams }: Props) {
         {/* Header */}
         <div className="card text-center">
           <p className="text-gray-400 text-xs uppercase tracking-widest mb-1">Examination Result Slip</p>
-          <h1 className="text-2xl font-black text-gray-800">{profile?.full_name}</h1>
+          <h1 className="text-2xl font-black text-gray-800">{profileRow?.full_name}</h1>
           <p className="text-gray-500 text-sm mt-1">
-            Reg No: <strong>{profile?.reg_number}</strong> &nbsp;·&nbsp;
-            {registration.course_group} Combination &nbsp;·&nbsp;
-            Attempt #{registration.attempt_number || totalAttempts}
+                      Reg No: <strong>{profileRow?.reg_number}</strong> &nbsp;·&nbsp;
+            {registrationRow.course_group} Combination &nbsp;·&nbsp;
+                        Attempt #{registrationRow.attempt_number || totalAttempts}
           </p>
           <p className="text-gray-400 text-xs mt-1">
-            Submitted: {session.submitted_at && new Date(session.submitted_at).toLocaleString('en-NG', { dateStyle:'long', timeStyle:'short' })}
-            {session.is_auto_submitted ? ' (Auto-submitted — time expired)' : ''}
+            Submitted: {sessionRow.submitted_at && new Date(sessionRow.submitted_at).toLocaleString('en-NG', { dateStyle:'long', timeStyle:'short' })}
+                        {sessionRow.is_auto_submitted ? ' (Auto-submitted — time expired)' : ''}
           </p>
           {isThisBest && totalAttempts > 1 && (
             <div className="mt-3 inline-flex items-center gap-1.5 bg-yellow-100 text-yellow-800 text-xs font-bold px-3 py-1.5 rounded-full">

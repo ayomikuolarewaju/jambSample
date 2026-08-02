@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import { Flag, ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react'
 import clsx from 'clsx'
 import type { Question, Subject } from '@/types/database'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '@/types/database'
 
 const EXAM_DURATION = 30 * 60
 const OPTIONS = ['A', 'B', 'C', 'D'] as const
@@ -33,7 +35,7 @@ export default function ExamClient({
   initialTimeLeft,
 }: ExamClientProps) {
   const router = useRouter()
-  const [supabase, setSupabase] = useState<ReturnType<typeof createClient> | null>(null)
+  const [supabase, setSupabase] = useState<SupabaseClient<Database> | null>(null)
 
   const [subjects, setSubjects] = useState<SubjectWithQuestions[]>(initialSubjects)
   const [subjectIdx, setSubjectIdx] = useState(0)
@@ -50,8 +52,7 @@ export default function ExamClient({
 
   // Initialize Supabase client
   useEffect(() => {
-    const client = createClient()
-    setSupabase(client)
+    createClient().then(setSupabase)
   }, [])
 
   // Initialize answers from saved data
@@ -94,7 +95,7 @@ export default function ExamClient({
       isFlagged: boolean
     ) => {
       if (!supabase) return
-      await supabase.from('exam_answers').upsert(
+      await (supabase.from('exam_answers') as any).upsert(
         {
           session_id: sessionId,
           user_id: userId,
@@ -155,24 +156,22 @@ export default function ExamClient({
     await Promise.all(
       subjects.flatMap((s) =>
         s.questions.map((q) =>
-          supabase
-            .from('exam_answers')
+          (supabase.from('exam_answers') as any)
             .update({ is_correct: answers[q.id] === q.correct_option })
             .eq('session_id', sessionId)
             .eq('question_id', q.id)
         )
       )
     )
-    await supabase.from('subject_results').insert(subjectResults)
-    await supabase.from('exam_sessions').update({
+    await (supabase.from('subject_results') as any).insert(subjectResults)
+    await (supabase.from('exam_sessions') as any).update({
       submitted_at: new Date().toISOString(),
       time_remaining: timeLeft,
       is_auto_submitted: auto,
       total_score: totalScore,
     })
     .eq('id', sessionId)
-    await supabase
-      .from('exam_registrations')
+    await (supabase.from('exam_registrations') as any)
       .update({
         status: 'completed',
         exam_ended_at: new Date().toISOString(),

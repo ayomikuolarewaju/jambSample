@@ -6,7 +6,7 @@ export default function AdminLogoutButton() {
   const router = useRouter()
   const handle = async () => {
     await (await createClient()).auth.signOut()
-    router.push('/'); router.refresh()
+    router.push('/admin/login'); router.refresh()
   }
   return (
     <button onClick={handle}

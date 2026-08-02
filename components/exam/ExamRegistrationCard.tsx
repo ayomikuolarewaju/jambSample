@@ -58,21 +58,20 @@ export default function ExamRegistrationCard({ userId, activeSession }: Props) {
       setLoading(false); return
     }
 
+    const subjectsRow = subjects as any[]
     const subjectIds = subjectNames
-      .map(n => subjects.find(s => s.name === n)?.id)
+      .map(n => subjectsRow.find(s => s.name === n)?.id)
       .filter(Boolean) as string[]
 
     // First mark any old 'registered' or 'in_progress' records as abandoned
     // so they don't interfere
-    await supabase
-      .from('exam_registrations')
+    await (supabase.from('exam_registrations') as any)
       .update({ status: 'abandoned' })
       .eq('user_id', userId)
       .in('status', ['registered', 'in_progress'])
 
     // Now insert the new registration
-    const { data: reg, error: regError } = await supabase
-      .from('exam_registrations')
+    const { data: reg, error: regError } = await (supabase.from('exam_registrations') as any)
       .insert({
         user_id:      userId,
         course_group: courseGroup,

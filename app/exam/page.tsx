@@ -36,6 +36,7 @@ export default async function ExamPage() {
 
   const activeReg = reg || regPending
   if (!activeReg) redirect('/dashboard')
+  const activeRegRow = activeReg as any
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -43,34 +44,35 @@ export default async function ExamPage() {
     .eq('id', user.id)
     .single()
 
+  const profileRow = profile as any
+
   const { data: existing } = await supabase
     .from('exam_sessions')
     .select('*')
-    .eq('registration_id', activeReg.id)
+    .eq('registration_id', activeRegRow.id)
     .maybeSingle()
 
-  if (existing?.submitted_at) redirect(`/results?session=${existing.id}`)
+  const existingRow = existing as any
+  if (existingRow?.submitted_at) redirect(`/results?session=${existingRow.id}`)
 
-  let sid = existing?.id
+  let sid = existingRow?.id
   if (!sid) {
-    const { data: newSess } = await supabase
-      .from('exam_sessions')
-      .insert({ user_id: user.id, registration_id: activeReg.id })
+    const { data: newSess } = await (supabase.from('exam_sessions') as any)
+      .insert({ user_id: user.id, registration_id: activeRegRow.id })
       .select()
       .single()
     sid = newSess?.id
-    await supabase
-      .from('exam_registrations')
+    await (supabase.from('exam_registrations') as any)
       .update({ status: 'in_progress', exam_started_at: new Date().toISOString() })
-      .eq('id', activeReg.id)
+      .eq('id', activeRegRow.id)
   }
 
   const { data: subjectsData } = await supabase
     .from('subjects')
     .select('*')
-    .in('id', activeReg.subject_ids)
+    .in('id', activeRegRow.subject_ids)
 
-  const ordered = activeReg.subject_ids
+  const ordered = activeRegRow.subject_ids
     .map((id: string) => subjectsData?.find((s: Subject) => s.id === id))
     .filter(Boolean)
 
@@ -87,26 +89,26 @@ export default async function ExamPage() {
   )
 
   let savedAnswers: any[] = []
-  if (existing) {
+  if (existingRow) {
     const { data } = await supabase
       .from('exam_answers')
       .select('*')
-      .eq('session_id', existing.id)
+      .eq('session_id', existingRow.id)
     savedAnswers = data || []
   }
 
-  const firstName = profile?.full_name?.split(' ').pop() || 'Candidate'
+  const firstName = profileRow?.full_name?.split(' ').pop() || 'Candidate'
 
   // Pass data to Client Component
   return (
     <ExamClient
       userId={user.id}
-      registrationId={activeReg.id}
+      registrationId={activeRegRow.id}
       sessionId={sid || ''}
       subjects={withQs}
       savedAnswers={savedAnswers}
       firstName={firstName}
-      initialTimeLeft={existing?.time_remaining}
+      initialTimeLeft={existingRow?.time_remaining}
     />
   )
 }

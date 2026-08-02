@@ -47,6 +47,20 @@ export interface Database {
         Insert: Omit<Database['public']['Tables']['exam_sessions']['Row'],'id'|'started_at'>
         Update: Partial<Database['public']['Tables']['exam_sessions']['Insert']>
       }
+      guest_sessions: {
+        Row: {
+          id: string;
+          lead_id: string;
+          first_name: string | null;
+          course_group: 'Science'|'Commercial'|'Arts';
+          subject_ids: string[];
+          started_at?: string | null;
+          submitted_at?: string | null;
+          created_at?: string;
+        }
+        Insert: Omit<Database['public']['Tables']['guest_sessions']['Row'],'id'|'created_at'>
+        Update: Partial<Database['public']['Tables']['guest_sessions']['Insert']>
+      }
       exam_answers: {
         Row: {
           id: string; session_id: string; user_id: string
@@ -65,8 +79,30 @@ export interface Database {
         Insert: Omit<Database['public']['Tables']['subject_results']['Row'],'id'>
         Update: Partial<Database['public']['Tables']['subject_results']['Insert']>
       }
+      admins: {
+        Row: {
+          id: string;
+          email: string;
+          full_name: string;
+          role: 'admin'|'super_admin';
+          is_active: boolean;
+          created_at: string;
+        }
+        Insert: Omit<Database['public']['Tables']['admins']['Row'],'id'|'created_at'>
+        Update: Partial<Database['public']['Tables']['admins']['Insert']>
+      }
       invite_leads: {
-        Row: { id: string; email: string; first_name: string|null; invited_at: string; registered: boolean; created_at: string }
+        Row: {
+          id: string;
+          email: string;
+          first_name: string | null;
+          access_token?: string | null;
+          expires_at?: string | null;
+          token_used_at?: string | null;
+          invited_at: string;
+          registered: boolean;
+          created_at: string;
+        }
         Insert: Omit<Database['public']['Tables']['invite_leads']['Row'],'id'|'created_at'>
         Update: Partial<Database['public']['Tables']['invite_leads']['Insert']>
       }
@@ -84,6 +120,8 @@ export type ExamSession      = Database['public']['Tables']['exam_sessions']['Ro
 export type ExamAnswer       = Database['public']['Tables']['exam_answers']['Row']
 export type SubjectResult    = Database['public']['Tables']['subject_results']['Row']
 export type InviteLead       = Database['public']['Tables']['invite_leads']['Row']
+export type GuestSession     = Database['public']['Tables']['guest_sessions']['Row']
+export type Admin            = Database['public']['Tables']['admins']['Row']
 
 export type SelectedOption = 'A'|'B'|'C'|'D'|null
 export type CourseGroup    = 'Science'|'Commercial'|'Arts'
