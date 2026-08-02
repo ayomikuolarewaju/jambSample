@@ -52,7 +52,8 @@ export default function ExamClient({
 
   // Initialize Supabase client
   useEffect(() => {
-    createClient().then(setSupabase)
+    const client = createClient()
+    setSupabase(client)
   }, [])
 
   // Initialize answers from saved data
