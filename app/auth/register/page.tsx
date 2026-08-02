@@ -134,7 +134,7 @@ export default function RegisterPage() {
         {/* Logo */}
         <div className="text-center mb-6">
           <div className="mb-6" >
-              <Image src="/images/logo.png" alt="Hero" width={200} height={200} className='rounded-3xl shadow-2xl border-4 border-white/10 transform hover:scale-[1.02] transition-transform duration-500'/>
+              <Image src="/images/logo.png" alt="Hero" width={100} height={100} className='rounded-3xl shadow-2xl border-4 border-white/10 transform hover:scale-[1.02] transition-transform duration-500'/>
           </div>
           <p className="text-green-300 text-sm mt-1">Candidate Registration</p>
         </div>
@@ -181,19 +181,19 @@ export default function RegisterPage() {
           {/* ── Step 0: Personal Info ─────────────────────────────────────── */}
           {step === 0 && (
             <div className="space-y-4 animate-fade-in">
-              <h2 className="text-lg font-black text-gray-800 mb-4">Personal Information</h2>
+              <h2 className="text-lg font-black text-black mb-4">Personal Information</h2>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">
+                <label className="block text-xs font-semibold text-black uppercase tracking-wide mb-1.5">
                   Full Name <span className="text-red-500">*</span>
                 </label>
                 <input type="text" placeholder="e.g. Oluwaseun Adeyemi"
                   value={fullName} onChange={e => setFullName(e.target.value)}
-                  required className="input-field"/>
+                  required className="input-field text-black"/>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">
+                <label className="block text-xs font-semibold text-black uppercase tracking-wide mb-1.5">
                   JAMB Registration Number <span className="text-red-500">*</span>
                 </label>
                 <input type="text" placeholder="e.g. 12345678AB"
@@ -203,32 +203,32 @@ export default function RegisterPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">
+                  <label className="block text-xs font-semibold text-black uppercase tracking-wide mb-1.5">
                     Gender <span className="text-red-500">*</span>
                   </label>
                   <select value={gender} onChange={e => setGender(e.target.value)}
-                    required className="input-field">
+                    required className="input-field text-black">
                     <option value="">Select</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">
+                  <label className="block text-xs font-semiboldtext-black uppercase tracking-wide mb-1.5">
                     Date of Birth <span className="text-red-500">*</span>
                   </label>
                   <input type="date" value={dateOfBirth}
                     onChange={e => setDateOfBirth(e.target.value)}
-                    required className="input-field"/>
+                    required className="input-field text-black"/>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">
+                <label className="block text-xs font-semibold text-black uppercase tracking-wide mb-1.5">
                   State of Origin <span className="text-red-500">*</span>
                 </label>
                 <select value={stateOfOrigin} onChange={e => setStateOfOrigin(e.target.value)}
-                  required className="input-field">
+                  required className="input-field text-black">
                   <option value="">Select State</option>
                   {NIGERIAN_STATES.map(s => (
                     <option key={s} value={s}>{s}</option>
@@ -238,25 +238,25 @@ export default function RegisterPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">
+                  <label className="block text-xs font-semibold text-black uppercase tracking-wide mb-1.5">
                     Email <span className="text-gray-400 font-normal">(optional)</span>
                   </label>
                   <input type="email" placeholder="your@email.com"
                     value={contactEmail} onChange={e => setContactEmail(e.target.value)}
-                    className="input-field"/>
+                    className="input-field text-black"/>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">
+                  <label className="block text-xs font-semibold text-black uppercase tracking-wide mb-1.5">
                     Phone <span className="text-gray-400 font-normal">(optional)</span>
                   </label>
                   <input type="tel" placeholder="08012345678"
                     value={phone} onChange={e => setPhone(e.target.value)}
-                    className="input-field"/>
+                    className="input-field text-black"/>
                 </div>
               </div>
 
               <button onClick={nextStep}
-                className="w-full btn-primary py-3 mt-2">
+                className="w-full btn-primary py-3 mt-2 text-black">
                 Continue →
               </button>
             </div>
@@ -268,7 +268,7 @@ export default function RegisterPage() {
               <h2 className="text-lg font-black text-gray-800 mb-4">Create Your Password</h2>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">
+                <label className="block text-xs font-semibold text-black uppercase tracking-wide mb-1.5">
                   Password <span className="text-gray-400 font-normal">(min. 8 characters)</span>
                 </label>
                 <div className="relative">
@@ -298,7 +298,7 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">
+                <label className="block text-xs font-semibold text-black uppercase tracking-wide mb-1.5">
                   Confirm Password
                 </label>
                 <div className="relative">
@@ -323,9 +323,9 @@ export default function RegisterPage() {
 
               <div className="flex gap-3 mt-2">
                 <button onClick={() => setStep(0)}
-                  className="btn-secondary flex-1 py-3">← Back</button>
+                  className="btn-secondary flex-1 py-3 text-black">← Back</button>
                 <button onClick={nextStep}
-                  className="btn-primary flex-1 py-3">Continue →</button>
+                  className="btn-primary flex-1 py-3 text-black">Continue →</button>
               </div>
             </div>
           )}
@@ -400,13 +400,13 @@ export default function RegisterPage() {
               )}
 
               <div className="flex gap-3 mt-2">
-                <button onClick={() => setStep(1)} className="btn-secondary flex-1 py-3">
+                <button onClick={() => setStep(1)} className="btn-secondary flex-1 py-3 text-black">
                   ← Back
                 </button>
                 <button
                   onClick={handleRegister}
                   disabled={!courseGroup || electives.length !== 3 || loading}
-                  className="btn-primary flex-1 py-3 flex items-center justify-center gap-2">
+                  className="btn-primary flex-1 py-3 flex items-center justify-center gap-2 text-black">
                   {loading
                     ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"/>Creating…</>
                     : <><UserPlus size={16}/>Create Account</>}
