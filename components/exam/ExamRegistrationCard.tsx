@@ -58,20 +58,21 @@ export default function ExamRegistrationCard({ userId, activeSession }: Props) {
       setLoading(false); return
     }
 
-    const subjectsRow = subjects as any[]
     const subjectIds = subjectNames
-      .map(n => subjectsRow.find(s => s.name === n)?.id)
+      .map(n => subjects.find(s => s.name === n)?.id)
       .filter(Boolean) as string[]
 
     // First mark any old 'registered' or 'in_progress' records as abandoned
     // so they don't interfere
-    await (supabase.from('exam_registrations') as any)
+    await supabase
+      .from('exam_registrations')
       .update({ status: 'abandoned' })
       .eq('user_id', userId)
       .in('status', ['registered', 'in_progress'])
 
     // Now insert the new registration
-    const { data: reg, error: regError } = await (supabase.from('exam_registrations') as any)
+    const { data: reg, error: regError } = await supabase
+      .from('exam_registrations')
       .insert({
         user_id:      userId,
         course_group: courseGroup,
@@ -92,9 +93,8 @@ export default function ExamRegistrationCard({ userId, activeSession }: Props) {
     }
 
     localStorage.removeItem('jamb_combination')
-    // Add small delay to ensure database is committed
-    await new Promise(resolve => setTimeout(resolve, 100))
     router.push('/exam')
+    router.refresh()
   }
 
   // In-progress → resume

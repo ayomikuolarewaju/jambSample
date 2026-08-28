@@ -4,15 +4,13 @@ import { createClient } from '@/lib/supabase/client'
 import AdminNav from '@/components/admin/AdminNav'
 import { PlusCircle, Pencil, Save, X, ToggleLeft, ToggleRight } from 'lucide-react'
 import clsx from 'clsx'
-import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Database } from '@/types/database'
 
 interface Subject { id: string; name: string; code: string; category: string; is_active: boolean }
 const CATEGORIES = ['compulsory','science','commercial','arts']
 const EMPTY = { name:'', code:'', category:'science', is_active: true }
 
-export default function SubjectsPage() {
-  const [supabase, setSupabase] = useState<SupabaseClient<Database> | null>(null)
+export default async function SubjectsPage() {
+  const supabase = await createClient()
   const [subjects, setSubjects] = useState<Subject[]>([])
   const [loading,  setLoading]  = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -22,23 +20,14 @@ export default function SubjectsPage() {
   const [error,    setError]    = useState('')
   const [success,  setSuccess]  = useState('')
 
-  // Initialize Supabase client
-  useEffect(() => {
-    const client = createClient()
-    setSupabase(client)
-  }, [])
-
   const load = async () => {
-    if (!supabase) return
     setLoading(true)
     const { data } = await supabase.from('subjects').select('*').order('category').order('name')
     setSubjects(data || [])
     setLoading(false)
   }
 
-  useEffect(() => { 
-    if (supabase) load() 
-  }, [supabase])
+  useEffect(() => { load() }, [])
 
   const setF = (k: keyof typeof form) =>
     (e: React.ChangeEvent<HTMLInputElement|HTMLSelectElement>) =>
@@ -51,16 +40,15 @@ export default function SubjectsPage() {
   }
 
   const handleSave = async (e: React.FormEvent) => {
-    if (!supabase) return
     e.preventDefault()
     setSaving(true); setError('')
     const payload = { name: form.name.trim(), code: form.code.trim().toUpperCase(), category: form.category, is_active: form.is_active }
     if (editingId) {
-      const { error: err } = await (supabase.from('subjects') as any).update(payload).eq('id', editingId)
+      const { error: err } = await supabase.from('subjects').update(payload).eq('id', editingId)
       if (err) { setError(err.message); setSaving(false); return }
       setSuccess('Subject updated.')
     } else {
-      const { error: err } = await (supabase.from('subjects') as any).insert(payload)
+      const { error: err } = await supabase.from('subjects').insert(payload)
       if (err) { setError(err.message); setSaving(false); return }
       setSuccess('Subject added.')
     }
@@ -68,8 +56,7 @@ export default function SubjectsPage() {
   }
 
   const toggleActive = async (id: string, current: boolean) => {
-    if (!supabase) return
-    await (supabase.from('subjects') as any).update({ is_active: !current }).eq('id', id)
+    await supabase.from('subjects').update({ is_active: !current }).eq('id', id)
     load()
   }
 

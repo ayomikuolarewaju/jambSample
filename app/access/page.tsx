@@ -10,7 +10,6 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { CheckCircle, BookOpen, FlaskConical, Briefcase, Palette } from 'lucide-react'
-import type { InviteLead, GuestSession, Subject } from '@/types/database'
 
 import clsx from 'clsx'
 
@@ -61,7 +60,7 @@ function AccessContent() {
   }, [token])
 
   const validate = async () => {
-    const supabase = await createClient()
+    const supabase = createClient()
     const { data: lead, error } = await supabase
       .from('invite_leads')
       .select('id, first_name, email, expires_at, token_used_at')
@@ -74,9 +73,7 @@ function AccessContent() {
       return
     }
 
-    const leadRow = lead as unknown as InviteLead
-
-    if (leadRow.expires_at && new Date(leadRow.expires_at) < new Date()) {
+    if (lead.expires_at && new Date(lead.expires_at) < new Date()) {
       setErrorMsg('This access link has expired (links are valid for 7 days). Please request a new one.')
       setStage('error')
       return
@@ -86,25 +83,23 @@ function AccessContent() {
     const { data: existing } = await supabase
       .from('guest_sessions')
       .select('id, submitted_at')
-      .eq('lead_id', leadRow.id)
+      .eq('lead_id', lead.id)
       .maybeSingle()
 
-    const existingRow = existing as unknown as GuestSession | null
-
-    if (existingRow?.submitted_at) {
+    if (existing?.submitted_at) {
       // Already did the exam — go to their results
-      router.push(`/guest-results?session=${existingRow.id}`)
+      router.push(`/guest-results?session=${existing.id}`)
       return
     }
 
-    if (existingRow && !existingRow.submitted_at) {
+    if (existing && !existing.submitted_at) {
       // In-progress session — resume exam
-      router.push(`/guest-exam?session=${existingRow.id}`)
+      router.push(`/guest-exam?session=${existing.id}`)
       return
     }
 
-    setLeadId(leadRow.id)
-    setFirstName(leadRow.first_name || 'Candidate')
+    setLeadId(lead.id)
+    setFirstName(lead.first_name || 'Candidate')
     setStage('pick')
   }
 
@@ -123,7 +118,7 @@ function AccessContent() {
     if (!canStart) return
     setStage('starting')
 
-    const supabase = await createClient()
+    const supabase = createClient()
 
     // Get subject IDs for English + electives
     const subjectNames = ['English Language', ...electives]
@@ -138,9 +133,8 @@ function AccessContent() {
       return
     }
 
-    const subjectRows = subjects as Subject[] | null
     const subjectIds = subjectNames
-      .map(n => subjectRows?.find(s => s.name === n)?.id)
+      .map(n => subjects.find(s => s.name === n)?.id)
       .filter(Boolean) as string[]
 
     // Create guest session
@@ -151,7 +145,7 @@ function AccessContent() {
         first_name:   firstName,
         course_group: courseGroup,
         subject_ids:  subjectIds,
-      } as any)
+      })
       .select()
       .single()
 
@@ -162,12 +156,13 @@ function AccessContent() {
     }
 
     // Mark token as used
-    await (supabase.from('invite_leads') as any)
+    await supabase
+      .from('invite_leads')
       .update({ token_used_at: new Date().toISOString() })
       .eq('id', leadId)
 
     // Go straight to exam
-    router.push(`/guest-exam?session=${(session as any).id}`)
+    router.push(`/guest-exam?session=${session.id}`)
   }
 
   // ── RENDER ────────────────────────────────────────────────────────────

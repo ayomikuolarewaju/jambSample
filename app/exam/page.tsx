@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/client'
 import { redirect } from 'next/navigation'
 import ExamClient from './exam-client'
 import type { Question, Subject } from '@/types/database'
@@ -36,7 +36,6 @@ export default async function ExamPage() {
 
   const activeReg = reg || regPending
   if (!activeReg) redirect('/dashboard')
-  const activeRegRow = activeReg as any
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -44,35 +43,34 @@ export default async function ExamPage() {
     .eq('id', user.id)
     .single()
 
-  const profileRow = profile as any
-
   const { data: existing } = await supabase
     .from('exam_sessions')
     .select('*')
-    .eq('registration_id', activeRegRow.id)
+    .eq('registration_id', activeReg.id)
     .maybeSingle()
 
-  const existingRow = existing as any
-  if (existingRow?.submitted_at) redirect(`/results?session=${existingRow.id}`)
+  if (existing?.submitted_at) redirect(`/results?session=${existing.id}`)
 
-  let sid = existingRow?.id
+  let sid = existing?.id
   if (!sid) {
-    const { data: newSess } = await (supabase.from('exam_sessions') as any)
-      .insert({ user_id: user.id, registration_id: activeRegRow.id })
+    const { data: newSess } = await supabase
+      .from('exam_sessions')
+      .insert({ user_id: user.id, registration_id: activeReg.id })
       .select()
       .single()
     sid = newSess?.id
-    await (supabase.from('exam_registrations') as any)
+    await supabase
+      .from('exam_registrations')
       .update({ status: 'in_progress', exam_started_at: new Date().toISOString() })
-      .eq('id', activeRegRow.id)
+      .eq('id', activeReg.id)
   }
 
   const { data: subjectsData } = await supabase
     .from('subjects')
     .select('*')
-    .in('id', activeRegRow.subject_ids)
+    .in('id', activeReg.subject_ids)
 
-  const ordered = activeRegRow.subject_ids
+  const ordered = activeReg.subject_ids
     .map((id: string) => subjectsData?.find((s: Subject) => s.id === id))
     .filter(Boolean)
 
@@ -89,26 +87,26 @@ export default async function ExamPage() {
   )
 
   let savedAnswers: any[] = []
-  if (existingRow) {
+  if (existing) {
     const { data } = await supabase
       .from('exam_answers')
       .select('*')
-      .eq('session_id', existingRow.id)
+      .eq('session_id', existing.id)
     savedAnswers = data || []
   }
 
-  const firstName = profileRow?.full_name?.split(' ').pop() || 'Candidate'
+  const firstName = profile?.full_name?.split(' ').pop() || 'Candidate'
 
   // Pass data to Client Component
   return (
     <ExamClient
       userId={user.id}
-      registrationId={activeRegRow.id}
+      registrationId={activeReg.id}
       sessionId={sid || ''}
       subjects={withQs}
       savedAnswers={savedAnswers}
       firstName={firstName}
-      initialTimeLeft={existingRow?.time_remaining}
+      initialTimeLeft={existing?.time_remaining}
     />
   )
 }

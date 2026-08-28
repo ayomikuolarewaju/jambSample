@@ -7,7 +7,6 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, ShieldCheck } from 'lucide-react'
-import type { Admin } from '@/types/database'
 
 function friendlyError(msg: string) {
   if (msg.includes('Invalid login credentials')) return 'Incorrect email or password.'
@@ -50,9 +49,7 @@ export default function AdminLoginPage() {
       setLoading(false); return
     }
 
-    const adminRow = admin as unknown as Admin
-
-    if (!adminRow.is_active) {
+    if (!admin.is_active) {
       await supabase.auth.signOut()
       setError('This admin account has been deactivated. Contact your super admin.')
       setLoading(false); return

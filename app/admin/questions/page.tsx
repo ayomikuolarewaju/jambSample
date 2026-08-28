@@ -10,8 +10,6 @@ import {
   ChevronDown, ChevronUp, BookOpen, Filter
 } from 'lucide-react'
 import clsx from 'clsx'
-import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Database } from '@/types/database'
 
 interface Subject { id: string; name: string; code: string }
 interface Question {
@@ -31,8 +29,8 @@ const EMPTY_FORM   = {
   explanation:'', difficulty:'medium', year:'', is_active: true,
 }
 
-export default function QuestionsPage() {
-  const [supabase, setSupabase] = useState<SupabaseClient<Database> | null>(null)
+export default async function QuestionsPage() {
+  const supabase = await createClient()
 
   const [questions,      setQuestions]      = useState<Question[]>([])
   const [subjects,       setSubjects]       = useState<Subject[]>([])
@@ -57,14 +55,7 @@ export default function QuestionsPage() {
   // Delete confirm
   const [deleteId,       setDeleteId]       = useState<string|null>(null)
 
-  // Initialize Supabase client
-  useEffect(() => {
-    const client = createClient()
-    setSupabase(client)
-  }, [])
-
   const load = useCallback(async () => {
-    if (!supabase) return
     setLoading(true)
     const { data: subs }  = await supabase.from('subjects').select('id,name,code').order('name')
     const { data: qs }    = await supabase
@@ -74,11 +65,9 @@ export default function QuestionsPage() {
     setSubjects(subs || [])
     setQuestions(qs || [])
     setLoading(false)
-  }, [supabase])
+  }, [])
 
-  useEffect(() => { 
-    if (supabase) load() 
-  }, [supabase, load])
+  useEffect(() => { load() }, [load])
 
   const setF = (k: keyof typeof form) =>
     (e: React.ChangeEvent<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>) =>
@@ -118,8 +107,6 @@ export default function QuestionsPage() {
     }
     setSaving(true); setError('')
 
-    if (!supabase) { setError('Unable to connect to database'); setSaving(false); return }
-
     const payload = {
       subject_id:     form.subject_id,
       question_text:  form.question_text.trim(),
@@ -135,11 +122,11 @@ export default function QuestionsPage() {
     }
 
     if (editingId) {
-      const { error: err } = await (supabase.from('questions') as any).update(payload).eq('id', editingId)
+      const { error: err } = await supabase.from('questions').update(payload).eq('id', editingId)
       if (err) { setError(err.message); setSaving(false); return }
       setSuccess('Question updated successfully.')
     } else {
-      const { error: err } = await (supabase.from('questions') as any).insert(payload)
+      const { error: err } = await supabase.from('questions').insert(payload)
       if (err) { setError(err.message); setSaving(false); return }
       setSuccess('Question added successfully.')
     }
@@ -150,8 +137,7 @@ export default function QuestionsPage() {
   }
 
   const handleDelete = async (id: string) => {
-    if (!supabase) return
-    const { error: err } = await (supabase.from('questions') as any).delete().eq('id', id)
+    const { error: err } = await supabase.from('questions').delete().eq('id', id)
     if (!err) { setDeleteId(null); load() }
   }
 

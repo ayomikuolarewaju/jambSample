@@ -3,18 +3,15 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import AdminLogoutButton from '@/components/admin/AdminLogoutButton'
 import { FileQuestion, BookOpen, Mail, Users, BarChart3, PlusCircle } from 'lucide-react'
-import type { Admin } from '@/types/database'
 
 export default async function AdminDashboardPage() {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/admin/login')
 
   const { data: admin } = await supabase
     .from('admins').select('full_name,role').eq('email', user.email!).single()
   if (!admin) redirect('/admin/login')
-
-  const adminRow = admin as unknown as Admin
 
   const [
     { count: questionCount },
@@ -53,8 +50,8 @@ export default async function AdminDashboardPage() {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-gray-400 text-sm hidden sm:block">
-            {adminRow.full_name}
-            <span className="ml-2 text-xs bg-green-900 text-green-400 px-2 py-0.5 rounded-full">{adminRow.role}</span>
+              {admin.full_name}
+              <span className="ml-2 text-xs bg-green-900 text-green-400 px-2 py-0.5 rounded-full">{admin.role}</span>
             </span>
             <AdminLogoutButton/>
           </div>
