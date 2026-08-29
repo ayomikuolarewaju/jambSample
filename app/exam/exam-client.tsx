@@ -23,7 +23,7 @@ interface ExamClientProps {
   initialTimeLeft?: number
 }
 
-export default function ExamClient({
+export default async function ExamClient({
   userId,
   registrationId,
   sessionId,
@@ -33,7 +33,7 @@ export default function ExamClient({
   initialTimeLeft,
 }: ExamClientProps) {
   const router = useRouter()
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const [subjects, setSubjects] = useState<SubjectWithQuestions[]>(initialSubjects)
   const [subjectIdx, setSubjectIdx] = useState(0)
