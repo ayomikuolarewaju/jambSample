@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Flag, ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react'
 import clsx from 'clsx'
-import type { Question, Subject } from '@/types/database'
+import type { ExamAnswer, Question, Subject } from '@/types/database'
 
 const EXAM_DURATION = 30 * 60
 const OPTIONS = ['A', 'B', 'C', 'D'] as const
@@ -18,7 +18,7 @@ interface ExamClientProps {
   registrationId: string
   sessionId: string
   subjects: SubjectWithQuestions[]
-  savedAnswers: any[]
+  savedAnswers: ExamAnswer[]
   firstName: string
   initialTimeLeft?: number
 }
@@ -53,7 +53,7 @@ export default async function ExamClient({
     if (savedAnswers.length) {
       const ans: Record<string, string | null> = {}
       const flg: Record<string, boolean> = {}
-      savedAnswers.forEach((a: any) => {
+      savedAnswers.forEach((a) => {
         ans[a.question_id] = a.selected_option
         flg[a.question_id] = a.is_flagged
       })

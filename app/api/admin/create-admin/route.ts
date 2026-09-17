@@ -112,10 +112,10 @@ export async function POST(request: Request) {
       message: `Admin created for ${cleanEmail}. Sign in at /admin/login.`,
     })
 
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[create-admin]', err)
     return NextResponse.json(
-      { error: err?.message || 'Unexpected server error.' },
+      { error: err instanceof Error ? err.message : 'Unexpected server error.' },
       { status: 500 }
     )
   }

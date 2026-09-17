@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/client'
 import { redirect } from 'next/navigation'
 import ExamClient from './exam-client'
-import type { Question, Subject } from '@/types/database'
+import type { ExamAnswer, Question, Subject } from '@/types/database'
 
 interface SubjectWithQuestions extends Subject {
   questions: Question[]
@@ -86,7 +86,7 @@ export default async function ExamPage() {
     })
   )
 
-  let savedAnswers: any[] = []
+  let savedAnswers: ExamAnswer[] = []
   if (existing) {
     const { data } = await supabase
       .from('exam_answers')

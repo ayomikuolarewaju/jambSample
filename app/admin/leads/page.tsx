@@ -11,8 +11,8 @@ interface Lead {
   expires_at: string|null
 }
 
-export default async function LeadsPage() {
-  const supabase = await createClient()
+export default function LeadsPage() {
+  const supabase = createClient()
   const [leads,   setLeads]   = useState<Lead[]>([])
   const [loading, setLoading] = useState(true)
   const [search,  setSearch]  = useState('')
@@ -20,6 +20,7 @@ export default async function LeadsPage() {
 
   useEffect(() => {
     (async () => {
+      const supabase = await createClient()
       const { data } = await supabase
         .from('invite_leads').select('*').order('invited_at', { ascending: false })
       setLeads(data || [])

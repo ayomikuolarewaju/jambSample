@@ -63,9 +63,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true })
 
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[send-invite]', err)
-    if (err?.code === 'EAUTH')
+    if (err && typeof err === 'object' && 'code' in err && err.code === 'EAUTH')
       return NextResponse.json({ error: 'Gmail auth failed. Check GMAIL_USER and GMAIL_APP_PASSWORD in .env.local.' }, { status: 500 })
     return NextResponse.json({ error: 'Failed to send email. Please try again.' }, { status: 500 })
   }
