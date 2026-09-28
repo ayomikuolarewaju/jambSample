@@ -9,18 +9,19 @@ import { createClient } from '@/lib/supabase/client'
 import { Flag, ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react'
 import clsx from 'clsx'
 import type { Question, Subject } from '@/types/database'
+import { randomizeQuestions } from '@/lib/exam/randomize-questions'
 
 const EXAM_DURATION = 30 * 60
 const OPTIONS = ['A','B','C','D'] as const
 
 interface SubjectWithQuestions extends Subject { questions: Question[] }
 
-async function GuestExamContent() {
+function GuestExamContent() {
   const router  = useRouter()
   const params  = useSearchParams()
   const sessionId = params.get('session') || ''
 
-  const supabase = await createClient()
+  const supabase = createClient()
 
   const [loading,       setLoading]       = useState(true)
   const [error,         setError]         = useState('')
@@ -65,13 +66,13 @@ async function GuestExamContent() {
 
     const ordered = session.subject_ids
       .map((id: string) => subjectsData.find((s: Subject) => s.id === id))
-      .filter(Boolean)
+      .filter((sub): sub is Subject => Boolean(sub))
 
     const withQs: SubjectWithQuestions[] = await Promise.all(
       ordered.map(async (sub: Subject) => {
         const { data: qs } = await supabase
-          .from('questions').select('*').eq('subject_id', sub.id).limit(10)
-        return { ...sub, questions: qs || [] }
+          .from('questions').select('*').eq('subject_id', sub.id).eq('is_active', true)
+        return { ...sub, questions: randomizeQuestions(qs || [], `${sessionId}:${sub.id}`).slice(0, 10) }
       })
     )
     setSubjects(withQs)

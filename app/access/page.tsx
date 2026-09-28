@@ -60,7 +60,7 @@ function AccessContent() {
   }, [token])
 
   const validate = async () => {
-    const supabase = await createClient()
+    const supabase = createClient()
     const { data: lead, error } = await supabase
       .from('invite_leads')
       .select('id, first_name, email, expires_at, token_used_at')
@@ -118,7 +118,7 @@ function AccessContent() {
     if (!canStart) return
     setStage('starting')
 
-    const supabase = await createClient()
+    const supabase = createClient()
 
     // Get subject IDs for English + electives
     const subjectNames = ['English Language', ...electives]
@@ -143,8 +143,14 @@ function AccessContent() {
       .insert({
         lead_id:      leadId,
         first_name:   firstName,
+        email:        '',
         course_group: courseGroup,
         subject_ids:  subjectIds,
+        submitted_at: null,
+        time_remaining: null,
+        is_auto_submitted: false,
+        total_score: null,
+        max_score: 400,
       })
       .select()
       .single()

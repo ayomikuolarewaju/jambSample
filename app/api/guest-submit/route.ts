@@ -3,6 +3,8 @@
 import { NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { randomizeQuestions } from '@/lib/exam/randomize-questions'
+import type { Database } from '@/types/database'
 
 export async function POST(request: Request) {
   try {
@@ -15,7 +17,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing sessionId.' }, { status: 400 })
 
     const cookieStore = await cookies()
-    const supabase = createServerClient(
+    const supabase = createServerClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       { cookies: { getAll: () => cookieStore.getAll(), setAll: () => {} } }
@@ -42,32 +44,28 @@ export async function POST(request: Request) {
       .from('questions')
       .select('id, subject_id, correct_option')
       .in('subject_id', session.subject_ids)
+      .eq('is_active', true)
 
     if (!questions)
       return NextResponse.json({ error: 'Could not load questions.' }, { status: 500 })
 
+    const examQuestions = session.subject_ids.flatMap((subjectId: string) =>
+      randomizeQuestions(
+        questions.filter(question => question.subject_id === subjectId),
+        `${sessionId}:${subjectId}`
+      ).slice(0, 10)
+    )
+
     // Score per subject
     let totalCorrect = 0
     const subjectResults = session.subject_ids.map((subId: string) => {
-      const subQuestions = questions.filter(q => q.subject_id === subId)
+      const subQuestions = examQuestions.filter(q => q.subject_id === subId)
       let correct = 0
       subQuestions.forEach(q => {
         const ans = answers?.find(a => a.question_id === q.id)
         if (ans?.selected_option === q.correct_option) correct++
       })
       totalCorrect += correct
-
-      // Mark individual answers as correct/incorrect
-      subQuestions.forEach(async q => {
-        const ans = answers?.find(a => a.question_id === q.id)
-        if (ans) {
-          await supabase
-            .from('guest_answers')
-            .update({ is_correct: ans.selected_option === q.correct_option })
-            .eq('session_id', sessionId)
-            .eq('question_id', q.id)
-        }
-      })
 
       return {
         session_id:      sessionId,
@@ -79,8 +77,19 @@ export async function POST(request: Request) {
       }
     })
 
-    const totalScore = questions.length > 0
-      ? (totalCorrect / questions.length) * 400
+    await Promise.all(examQuestions.map(async question => {
+      const answer = answers?.find(item => item.question_id === question.id)
+      if (!answer) return
+
+      await supabase
+        .from('guest_answers')
+        .update({ is_correct: answer.selected_option === question.correct_option })
+        .eq('session_id', sessionId)
+        .eq('question_id', question.id)
+    }))
+
+    const totalScore = examQuestions.length > 0
+      ? (totalCorrect / examQuestions.length) * 400
       : 0
 
     // Save subject results

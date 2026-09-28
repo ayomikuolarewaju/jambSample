@@ -9,6 +9,15 @@ import type { ExamAnswer, Question, Subject } from '@/types/database'
 const EXAM_DURATION = 30 * 60
 const OPTIONS = ['A', 'B', 'C', 'D'] as const
 
+const shuffleQuestions = <T,>(items: T[]) => {
+  const copy = [...items]
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[copy[i], copy[j]] = [copy[j], copy[i]]
+  }
+  return copy
+}
+
 interface SubjectWithQuestions extends Subject {
   questions: Question[]
 }
@@ -23,7 +32,7 @@ interface ExamClientProps {
   initialTimeLeft?: number
 }
 
-export default async function ExamClient({
+export default function ExamClient({
   userId,
   registrationId,
   sessionId,
@@ -33,7 +42,7 @@ export default async function ExamClient({
   initialTimeLeft,
 }: ExamClientProps) {
   const router = useRouter()
-  const supabase = await createClient()
+  const supabase = createClient()
 
   const [subjects, setSubjects] = useState<SubjectWithQuestions[]>(initialSubjects)
   const [subjectIdx, setSubjectIdx] = useState(0)
@@ -87,13 +96,14 @@ export default async function ExamClient({
       option: string | null,
       isFlagged: boolean
     ) => {
+      const selectedOption = option as ExamAnswer['selected_option']
       await supabase.from('exam_answers').upsert(
         {
           session_id: sessionId,
           user_id: userId,
           question_id: questionId,
           subject_id: subjectId,
-          selected_option: option,
+          selected_option: selectedOption,
           is_correct: null,
           is_flagged: isFlagged,
         },

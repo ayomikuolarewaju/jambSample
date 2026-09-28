@@ -9,8 +9,8 @@ interface Subject { id: string; name: string; code: string; category: string; is
 const CATEGORIES = ['compulsory','science','commercial','arts']
 const EMPTY = { name:'', code:'', category:'science', is_active: true }
 
-export default async function SubjectsPage() {
-  const supabase = await createClient()
+export default function SubjectsPage() {
+  const supabase = createClient()
   const [subjects, setSubjects] = useState<Subject[]>([])
   const [loading,  setLoading]  = useState(true)
   const [showForm, setShowForm] = useState(false)

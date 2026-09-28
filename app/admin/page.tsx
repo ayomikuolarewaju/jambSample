@@ -26,7 +26,7 @@ export default function AdminLoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true); setError('')
-    const supabase = await createClient()
+    const supabase = createClient()
 
     // Step 1: Sign in to Supabase Auth with real email + password
     const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })

@@ -29,8 +29,8 @@ const EMPTY_FORM   = {
   explanation:'', difficulty:'medium', year:'', is_active: true,
 }
 
-export default async function QuestionsPage() {
-  const supabase = await createClient()
+export default function QuestionsPage() {
+  const supabase = createClient()
 
   const [questions,      setQuestions]      = useState<Question[]>([])
   const [subjects,       setSubjects]       = useState<Subject[]>([])
@@ -67,7 +67,7 @@ export default async function QuestionsPage() {
     setLoading(false)
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => { void load() }, [load])
 
   const setF = (k: keyof typeof form) =>
     (e: React.ChangeEvent<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>) =>
@@ -119,6 +119,8 @@ export default async function QuestionsPage() {
       difficulty:     form.difficulty,
       year:           form.year ? parseInt(form.year) : null,
       is_active:      form.is_active,
+      updated_at:     new Date().toISOString(),
+      created_by:    'admin',
     }
 
     if (editingId) {

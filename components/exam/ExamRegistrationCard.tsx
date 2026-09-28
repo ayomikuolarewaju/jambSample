@@ -78,6 +78,9 @@ export default function ExamRegistrationCard({ userId, activeSession }: Props) {
         course_group: courseGroup,
         subject_ids:  subjectIds,
         status:       'registered',
+        exam_started_at: null,
+        exam_ended_at: null,
+        attempt_number: null,
       })
       .select()
       .single()

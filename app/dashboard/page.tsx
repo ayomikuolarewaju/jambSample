@@ -44,12 +44,14 @@ export default async function DashboardPage() {
     .maybeSingle()
 
   // Only treat as active if the session is NOT yet submitted
-  const rawSession = Array.isArray(activeReg?.exam_sessions)
-    ? activeReg?.exam_sessions[0]
-    : activeReg?.exam_sessions
+  const rawSession = Array.isArray((activeReg as any)?.exam_sessions)
+    ? (activeReg as any)?.exam_sessions[0]
+    : (activeReg as any)?.exam_sessions
 
-  const activeSession = (rawSession && !rawSession.submitted_at)
-    ? { id: rawSession.id, registration_id: activeReg!.id, submitted_at: null }
+  const activeRegAny = activeReg as any
+
+  const activeSession = (rawSession && !rawSession.submitted_at && activeRegAny)
+    ? { id: rawSession.id, registration_id: activeRegAny.id, submitted_at: null }
     : null
 
   // ── Stats ─────────────────────────────────────────────────────────────

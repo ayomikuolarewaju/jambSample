@@ -1,7 +1,8 @@
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import ExamClient from './exam-client'
 import type { ExamAnswer, Question, Subject } from '@/types/database'
+import { randomizeQuestions } from '@/lib/exam/randomize-questions'
 
 interface SubjectWithQuestions extends Subject {
   questions: Question[]
@@ -55,7 +56,15 @@ export default async function ExamPage() {
   if (!sid) {
     const { data: newSess } = await supabase
       .from('exam_sessions')
-      .insert({ user_id: user.id, registration_id: activeReg.id })
+      .insert({
+        user_id: user.id,
+        registration_id: activeReg.id,
+        submitted_at: null,
+        time_remaining: null,
+        is_auto_submitted: false,
+        total_score: null,
+        max_score: 400,
+      })
       .select()
       .single()
     sid = newSess?.id
@@ -72,7 +81,7 @@ export default async function ExamPage() {
 
   const ordered = activeReg.subject_ids
     .map((id: string) => subjectsData?.find((s: Subject) => s.id === id))
-    .filter(Boolean)
+    .filter((sub): sub is Subject => Boolean(sub))
 
   const withQs: SubjectWithQuestions[] = await Promise.all(
     (ordered as Subject[]).map(async (sub: Subject) => {
@@ -81,8 +90,8 @@ export default async function ExamPage() {
         .select('*')
         .eq('subject_id', sub.id)
         .eq('is_active', true)
-        .limit(10)
-      return { ...sub, questions: qs || [] }
+      const randomized = randomizeQuestions(qs || [], `${sid}:${sub.id}`).slice(0, 10)
+      return { ...sub, questions: randomized }
     })
   )
 
@@ -106,7 +115,7 @@ export default async function ExamPage() {
       subjects={withQs}
       savedAnswers={savedAnswers}
       firstName={firstName}
-      initialTimeLeft={existing?.time_remaining}
+      initialTimeLeft={existing?.time_remaining ?? undefined}
     />
   )
 }
