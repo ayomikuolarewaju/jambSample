@@ -1,4 +1,4 @@
-# JAMB CBT Portal
+# Eko Free CBT Hub
 
 A computer-based test simulator for Nigeria's JAMB university entrance exam, built to mirror the real exam experience for candidates preparing for it.
 

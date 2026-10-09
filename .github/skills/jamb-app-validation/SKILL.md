@@ -5,7 +5,7 @@ description: "Use when: validating a Next.js JAMB CBT app, checking exam flows, 
 
 # JAMB App Validation
 
-Use this skill to validate new changes or catch regressions in the JAMB CBT portal before launching or merging work.
+Use this skill to validate new changes or catch regressions in Eko Free CBT Hub before launching or merging work.
 
 ## When to use
 

@@ -83,7 +83,7 @@ export default async function DashboardPage() {
           <div className="flex items-center gap-3">
             <span className="text-2xl">🇳🇬</span>
             <div>
-              <p className="text-green-800 font-black leading-none">JAMB CBT Portal</p>
+              <p className="text-green-800 font-black leading-none">Eko Free CBT Hub</p>
               <p className="text-gray-400 text-[10px] tracking-widest uppercase">Candidate Dashboard</p>
             </div>
           </div>

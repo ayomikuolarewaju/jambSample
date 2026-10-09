@@ -18,9 +18,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'A valid email address is required.' }, { status: 400 })
 
     const name    = (firstName || 'Candidate').trim()
-    const appUrl  = process.env.NODE_ENV === 'production'
-      ? 'https://yourdomain.com'
-      : 'http://localhost:3000'
+    const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL
+    const appUrl = configuredSiteUrl || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3000')
+    if (!appUrl)
+      return NextResponse.json({ error: 'NEXT_PUBLIC_SITE_URL is not configured.' }, { status: 503 })
+
+    let siteUrl: URL
+    try {
+      siteUrl = new URL(appUrl)
+    } catch {
+      return NextResponse.json({ error: 'NEXT_PUBLIC_SITE_URL must be a valid absolute URL.' }, { status: 500 })
+    }
+    if (process.env.NODE_ENV === 'production' && siteUrl.protocol !== 'https:')
+      return NextResponse.json({ error: 'NEXT_PUBLIC_SITE_URL must use HTTPS in production.' }, { status: 500 })
+
     const token   = crypto.randomBytes(32).toString('hex')
     const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
 
@@ -52,12 +63,14 @@ export async function POST(request: Request) {
     }
 
     // Build direct access link — goes to combination picker, then straight to exam
-    const accessLink = `${appUrl}/access?token=${token}`
+    const accessUrl = new URL('/access', siteUrl)
+    accessUrl.searchParams.set('token', token)
+    const accessLink = accessUrl.toString()
 
     // Send email
     const { subject, html, text } = inviteEmailTemplate({ firstName: name, accessLink })
     await transporter.sendMail({
-      from: `"JAMB CBT Portal" <${process.env.GMAIL_USER}>`,
+      from: `"Eko Free CBT Hub" <${process.env.GMAIL_USER}>`,
       to:   email, subject, html, text,
     })
 

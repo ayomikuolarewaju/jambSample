@@ -3,6 +3,7 @@ import { useState, Suspense } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Eye, EyeOff } from 'lucide-react'
 
 function friendlyError(msg: string) {
@@ -35,8 +36,10 @@ function LoginForm() {
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-white flex items-center justify-center p-4">
       <div className="w-full max-w-md animate-slide-up">
         <div className="text-center mb-8">
-          <div className="text-5xl mb-3">🇳🇬</div>
-          <h1 className="text-2xl font-black text-green-800">JAMB CBT Portal</h1>
+          <div className="mx-auto mb-4 grid size-16 place-items-center overflow-hidden rounded-sm bg-white ring-1 ring-slate-200">
+            <Image src="/images/logo.png" alt="Eko Free CBT Hub" width={64} height={64} className="size-full object-contain" />
+          </div>
+          <h1 className="font-serif text-2xl font-black text-green-800">Eko Free CBT Hub</h1>
           <p className="text-gray-500 text-sm mt-1">Sign in with your JAMB registration number</p>
         </div>
 

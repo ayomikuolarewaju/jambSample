@@ -24,7 +24,7 @@ export function inviteEmailTemplate({
                   padding:32px 40px;text-align:center;">
     <p style="margin:0;font-size:42px;">🇳🇬</p>
     <h1 style="margin:12px 0 4px;color:#fff;font-size:22px;font-weight:900;">
-      JAMB CBT Portal
+      Eko Free CBT Hub
     </h1>
     <p style="margin:0;color:#bbf7d0;font-size:11px;letter-spacing:2px;text-transform:uppercase;">
       Unified Tertiary Matriculation Examination

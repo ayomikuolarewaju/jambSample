@@ -80,7 +80,7 @@ export default async function ResultsPage({ searchParams }: Props) {
           <div className="flex items-center gap-2">
             <span className="text-2xl">🇳🇬</span>
             <div>
-              <p className="text-green-800 font-black leading-none">JAMB CBT Portal</p>
+              <p className="text-green-800 font-black leading-none">Eko Free CBT Hub</p>
               <p className="text-gray-400 text-[10px] tracking-widest uppercase">Result Slip</p>
             </div>
           </div>

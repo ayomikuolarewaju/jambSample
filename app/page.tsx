@@ -1,88 +1,108 @@
-// app/page.tsx — Landing page
 import Link from 'next/link'
 import Image from 'next/image'
+import { ArrowRight, BookOpen, ChartNoAxesColumnIncreasing, Clock3 } from 'lucide-react'
+
+const highlights = [
+  { icon: BookOpen, title: '21 JAMB subjects', description: 'Build your subject combination' },
+  { icon: Clock3, title: 'Timed practice', description: 'Get comfortable with exam pace' },
+  { icon: ChartNoAxesColumnIncreasing, title: 'Clear results', description: 'See your score by subject' },
+]
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-gray-900
-                    flex flex-col items-center justify-center p-6 text-center">
-      <div className="max-w-6xl w-full animate-slide-up">
-        
-        {/* Two-column hero section */}
-        <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16 mb-10">
-          
-          {/* Left: Text content */}
-          <div className="flex-1 text-center lg:text-left">
-            <div className="mb-6" >
-               <Image src="/images/logo.png" alt="Hero" width={100} height={100} className='rounded-3xl shadow-2xl border-4 border-white/10 transform hover:scale-[1.02] transition-transform duration-500'/>
-            </div>
-            <p className="text-green-200 text-lg mb-10 leading-relaxed max-w-xl mx-auto lg:mx-0">
-              Prepare for your JAMB UTME with our free Computer-Based Test practice platform.
-              Real exam conditions, instant results, and detailed subject breakdowns.
-            </p>
+    <main className="min-h-screen bg-white text-slate-900">
+      <section className="directory-hero relative isolate overflow-hidden bg-[#1d3e8b] text-white">
+        <header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between gap-4 border-b border-white/15 px-5 py-3.5 md:px-8">
+          <Link href="/" className="flex min-w-0 items-center gap-3" aria-label="Eko Free CBT Hub home">
+            <span className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-sm bg-white">
+              <Image src="/images/logo.png" alt="" width={48} height={48} priority className="size-full object-contain" />
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate text-base font-bold leading-tight sm:text-lg">Eko Free CBT Hub</span>
+              <span className="mt-0.5 block text-[10px] font-semibold tracking-[0.12em] text-blue-100">JAMB UTME PRACTICE</span>
+            </span>
+          </Link>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-10">
-              <Link href="/auth/register"
-                className="bg-white text-green-800 font-black px-8 py-4 rounded-2xl
-                           hover:bg-green-50 transition-all active:scale-[.97] text-lg shadow-lg">
-                Register &amp; Start Practising
+          <nav aria-label="Main navigation" className="flex shrink-0 items-center gap-3 text-sm font-semibold sm:gap-5">
+            <Link href="/invite" className="hidden text-blue-100 transition-colors hover:text-white md:inline">Guest access</Link>
+            <Link href="/auth/login" className="hidden text-white transition-colors hover:text-yellow-200 sm:inline">Sign in</Link>
+            <Link href="/auth/register" className="inline-flex items-center gap-2 rounded-sm bg-[#f4c928] px-3.5 py-2.5 font-bold text-[#173575] transition-colors hover:bg-yellow-300 sm:px-4">
+              Register <ArrowRight size={16} aria-hidden="true" />
+            </Link>
+          </nav>
+        </header>
+
+        <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-9 px-5 py-10 sm:py-12 md:grid-cols-[1fr_0.88fr] md:px-8 md:py-14 lg:gap-16">
+          <div className="max-w-2xl animate-slide-up">
+            <p className="mb-5 inline-flex items-center bg-[#f4c928] px-3.5 py-2 text-[11px] font-extrabold tracking-[0.16em] text-[#173575]">
+              BUILT FOR JAMB CANDIDATES
+            </p>
+            <h1 className="font-serif text-4xl leading-[1.08] text-white sm:text-5xl lg:text-6xl">
+              JAMB practice
+              <span className="mt-1 block text-[#f4c928]">made simple.</span>
+            </h1>
+            <p className="mt-5 max-w-xl text-base leading-7 text-blue-100 sm:text-lg">
+              Prepare for UTME with focused subject practice, realistic timing, and clear results that show you what to work on next.
+            </p>
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+              <Link href="/auth/register" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-sm bg-[#f4c928] px-5 py-3 text-sm font-bold text-[#173575] transition-colors hover:bg-yellow-300">
+                Register &amp; start practising <ArrowRight size={17} aria-hidden="true" />
               </Link>
-              <Link href="/auth/login"
-                className="border-2 border-white/30 text-white font-bold px-8 py-4 rounded-2xl
-                           hover:bg-white/10 transition-all active:scale-[.97] text-lg">
-                Sign In
+              <Link href="/auth/login" className="inline-flex min-h-12 items-center justify-center rounded-sm border border-white/40 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10">
+                Candidate sign in
               </Link>
             </div>
+            <p className="mt-5 text-sm text-blue-100">
+              Have an invite link?{' '}
+              <Link href="/invite" className="font-semibold text-white underline decoration-[#f4c928] decoration-2 underline-offset-4 hover:text-yellow-200">Get started here</Link>
+            </p>
           </div>
 
-          {/* Right: Hero image — student preparing for JAMB */}
-          <div className="flex-1 w-full max-w-md lg:max-w-lg">
-            <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white/10
-                            transform hover:scale-[1.02] transition-transform duration-500">
+          <div className="relative mx-auto hidden aspect-[4/5] w-full max-w-[440px] md:block">
+            <div className="absolute -inset-3 translate-x-3 translate-y-3 border border-[#f4c928]/70" aria-hidden="true" />
+            <div className="absolute inset-0 overflow-hidden border border-white/35 bg-blue-950">
               <Image
                 src="/images/student.png"
-                alt="Student "
-                width={800}
-                height={534}
-                className="w-full h-auto object-cover"
+                alt="JAMB candidate studying at a desk"
+                fill
                 priority
+                sizes="(min-width: 768px) 40vw, 0px"
+                className="object-cover object-right"
               />
-              {/* Subtle overlay gradient */}
-              <div className="absolute inset-0 bg-gradient-to-t from-green-900/40 to-transparent" />
-              
-              {/* Floating badge */}
-              <div className="absolute bottom-1 left-40 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg">
-                <p className="text-green-800 font-bold text-sm">📝 Practice makes perfect</p>
+              <div className="absolute inset-x-0 bottom-0 bg-[#173575]/90 px-5 py-4 text-white">
+                <p className="text-[10px] font-bold tracking-[0.16em] text-yellow-200">PREPARE · PRACTISE · PASS</p>
+                <p className="mt-1 font-serif text-xl">Make every session count.</p>
               </div>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Feature cards */}
-        <div className="grid grid-cols-3 gap-4 max-w-md mx-auto">
-          {[
-            { icon: '📚', label: '21 Subjects', sub: 'All JAMB subjects' },
-            { icon: '⏱',  label: '30 Minutes', sub: 'Real exam timer' },
-            { icon: '📊', label: 'Instant Results', sub: 'Per-subject scores' },
-          ].map(f => (
-            <div key={f.label} className="bg-white/10 rounded-2xl p-4 text-center">
-              <div className="text-2xl mb-1">{f.icon}</div>
-              <p className="text-white font-bold text-sm">{f.label}</p>
-              <p className="text-green-300 text-xs mt-0.5">{f.sub}</p>
+      <section id="practice" className="border-b border-slate-200 bg-[#f7f8fc]">
+        <div className="mx-auto grid max-w-7xl divide-y divide-slate-200 px-5 sm:grid-cols-3 sm:divide-x sm:divide-y-0 md:px-8">
+          {highlights.map(({ icon: Icon, title, description }) => (
+            <div key={title} className="flex items-center gap-4 py-5 sm:px-5 sm:py-7 first:sm:pl-0 last:sm:pr-0">
+              <span className="grid size-11 shrink-0 place-items-center rounded-sm bg-[#fff0b7] text-[#1d3e8b]">
+                <Icon size={21} strokeWidth={1.8} aria-hidden="true" />
+              </span>
+              <span>
+                <span className="block text-sm font-bold text-[#173575]">{title}</span>
+                <span className="mt-1 block text-xs leading-5 text-slate-600">{description}</span>
+              </span>
             </div>
           ))}
         </div>
+      </section>
 
-        <div className="mt-8 text-green-400 text-xs">
-          <Link href="/invite" className="hover:text-green-200 transition-colors">
-            Received an invite link? Click here →
+      <footer className="mx-auto flex max-w-7xl flex-col gap-2 px-5 py-6 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between md:px-8">
+        <p>© {new Date().getFullYear()} Eko Free CBT Hub · Nigeria</p>
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <Link href="/trademark" className="font-semibold text-[#24458f] underline decoration-[#f4c928] underline-offset-4 hover:text-[#173575]">
+            Trademark notice
           </Link>
+          <p>Practice for your next step.</p>
         </div>
-      </div>
-
-      <footer className="text-center py-6 text-xs text-gray-400 border-t border-gray-100 mt-8">
-        © {new Date().getFullYear()} JAMB CBT Practice Platform · Nigeria · All rights reserved
       </footer>
-    </div>
+    </main>
   )
 }
