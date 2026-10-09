@@ -1,7 +1,7 @@
 'use client'
 import { useState, Suspense } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Eye, EyeOff } from 'lucide-react'
@@ -14,7 +14,6 @@ function friendlyError(msg: string) {
 }
 
 function LoginForm() {
-  const router = useRouter()
   const params = useSearchParams()
   const [regNumber, setRegNumber] = useState('')
   const [password,  setPassword]  = useState('')
@@ -29,7 +28,7 @@ function LoginForm() {
     const authEmail = `${regNumber.trim().toLowerCase().replace(/\s+/g,'')}@jambcbt.local`
     const { error } = await supabase.auth.signInWithPassword({ email: authEmail, password })
     if (error) { setError(friendlyError(error.message)); setLoading(false) }
-    else { router.push('/dashboard'); router.refresh() }
+    else { window.location.assign('/dashboard') }
   }
 
   return (
