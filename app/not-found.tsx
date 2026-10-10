@@ -2,6 +2,7 @@
 // Shown for any unmatched route in the app
 
 import Link from 'next/link'
+import BrandLogo from '@/components/BrandLogo'
 
 export default function NotFound() {
   return (
@@ -15,7 +16,7 @@ export default function NotFound() {
             404
           </p>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-6xl">🇳🇬</span>
+            <BrandLogo variant="dark" width={210} height={70} className="h-16 w-48 object-contain" />
           </div>
         </div>
 
@@ -41,7 +42,7 @@ export default function NotFound() {
         </div>
 
         <p className="text-green-500 text-xs mt-8">
-          JAMB CBT Practice Portal
+          Eko Free CBT Hub
         </p>
       </div>
     </div>

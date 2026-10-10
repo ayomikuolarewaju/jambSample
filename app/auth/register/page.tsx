@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import BrandLogo from '@/components/BrandLogo'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, EyeOff, CheckCircle } from 'lucide-react'
@@ -91,8 +92,8 @@ export default function RegisterPage() {
       <div className="max-w-2xl mx-auto animate-slide-up">
 
         <div className="text-center mb-8">
-          <div className="text-5xl mb-2">🇳🇬</div>
-          <h1 className="text-2xl font-black text-green-800">JAMB CBT Registration</h1>
+          <BrandLogo width={240} height={80} priority className="mx-auto mb-2 h-20 w-60 object-contain" />
+          <h1 className="text-2xl font-black text-green-800">Candidate Registration</h1>
           <p className="text-gray-500 text-sm mt-1">Create your candidate account and choose your subject combination</p>
         </div>
 

@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import BrandLogo from '@/components/BrandLogo'
 import AdminLogoutButton from '@/components/admin/AdminLogoutButton'
 import { FileQuestion, BookOpen, Mail, Users, BarChart3, PlusCircle } from 'lucide-react'
 
@@ -40,12 +41,9 @@ export default async function AdminDashboardPage() {
       <nav className="bg-gray-900 border-b border-gray-800 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-green-700 rounded-lg flex items-center justify-center">
-              <span className="text-white text-sm font-black">J</span>
-            </div>
             <div>
-              <p className="text-white font-black text-sm leading-none">JAMB CBT Admin</p>
-              <p className="text-gray-500 text-[10px]">Question Bank Manager</p>
+              <BrandLogo variant="dark" width={180} height={60} className="h-12 w-36 object-contain" />
+              <p className="text-gray-400 text-[10px]">Admin Dashboard</p>
             </div>
           </div>
           <div className="flex items-center gap-4">

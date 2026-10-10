@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import BrandLogo from '@/components/BrandLogo'
 import { ArrowRight, BookOpen, ChartNoAxesColumnIncreasing, Clock3 } from 'lucide-react'
 
 const highlights = [
@@ -14,13 +15,7 @@ export default function HomePage() {
       <section className="directory-hero relative isolate overflow-hidden bg-[#1d3e8b] text-white">
         <header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between gap-4 border-b border-white/15 px-5 py-3.5 md:px-8">
           <Link href="/" className="flex min-w-0 items-center gap-3" aria-label="Eko Free CBT Hub home">
-            <span className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-sm bg-white">
-              <Image src="/images/logo.png" alt="" width={48} height={48} priority className="size-full object-contain" />
-            </span>
-            <span className="min-w-0">
-              <span className="block truncate text-base font-bold leading-tight sm:text-lg">Eko Free CBT Hub</span>
-              <span className="mt-0.5 block text-[10px] font-semibold tracking-[0.12em] text-blue-100">JAMB UTME PRACTICE</span>
-            </span>
+            <BrandLogo width={180} height={60} priority className="h-12 w-36 shrink-0 object-contain sm:h-14 sm:w-42" />
           </Link>
 
           <nav aria-label="Main navigation" className="flex shrink-0 items-center gap-3 text-sm font-semibold sm:gap-5">

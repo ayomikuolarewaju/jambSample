@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import BrandLogo from '@/components/BrandLogo'
 import { Flag, ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react'
 import clsx from 'clsx'
 import type { ExamAnswer, Question, Subject } from '@/types/database'
@@ -241,14 +242,10 @@ export default function ExamClient({
       <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-xl">🇳🇬</span>
-            <span className="font-black text-green-800 text-sm hidden sm:block">
-              JAMB CBT
-            </span>
-            <span className="text-gray-200 hidden sm:block">|</span>
-            <span className="text-xs text-gray-500">{firstName}</span>
-            <span className="text-gray-200">|</span>
-            <span className="text-xs text-gray-500">
+            <BrandLogo width={150} height={50} className="h-8 w-24 shrink-0 object-contain sm:h-10 sm:w-32" />
+            <span className="hidden text-xs text-gray-500 sm:inline">{firstName}</span>
+            <span className="hidden text-gray-200 sm:inline">|</span>
+            <span className="hidden text-xs text-gray-500 sm:inline">
               {totalAnswered}/{totalQuestions} answered
             </span>
           </div>

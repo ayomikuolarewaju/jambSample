@@ -8,6 +8,7 @@
 
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import BrandLogo from '@/components/BrandLogo'
 import { createClient } from '@/lib/supabase/client'
 import { CheckCircle } from 'lucide-react'
 
@@ -213,7 +214,7 @@ function AccessContent() {
 
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="text-5xl mb-3">🇳🇬</div>
+          <BrandLogo width={240} height={80} priority className="mx-auto mb-3 h-20 w-60 object-contain" />
           <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 text-xs font-bold px-4 py-1.5 rounded-full mb-4">
             <CheckCircle size={13}/> Access Verified
           </div>

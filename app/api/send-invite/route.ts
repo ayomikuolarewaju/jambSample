@@ -66,9 +66,10 @@ export async function POST(request: Request) {
     const accessUrl = new URL('/access', siteUrl)
     accessUrl.searchParams.set('token', token)
     const accessLink = accessUrl.toString()
+    const logoUrl = new URL('/images/ekofreecbthub_logo.svg', siteUrl).toString()
 
     // Send email
-    const { subject, html, text } = inviteEmailTemplate({ firstName: name, accessLink })
+    const { subject, html, text } = inviteEmailTemplate({ firstName: name, accessLink, logoUrl })
     await transporter.sendMail({
       from: `"Eko Free CBT Hub" <${process.env.GMAIL_USER}>`,
       to:   email, subject, html, text,

@@ -5,6 +5,7 @@
 
 import { useEffect, useState, useRef, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import BrandLogo from '@/components/BrandLogo'
 import { createClient } from '@/lib/supabase/client'
 import { Flag, ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react'
 import clsx from 'clsx'
@@ -250,8 +251,7 @@ function GuestExamContent() {
         <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between">
 
           <div className="flex items-center gap-2">
-            <span className="text-xl">🇳🇬</span>
-            <span className="font-black text-green-800 text-sm hidden sm:block">JAMB CBT</span>
+            <BrandLogo width={150} height={50} className="h-8 w-24 shrink-0 object-contain sm:h-10 sm:w-32" />
             <span className="text-gray-200 hidden sm:block">|</span>
             <span className="text-xs text-gray-500">{firstName}</span>
             <span className="text-gray-200">|</span>

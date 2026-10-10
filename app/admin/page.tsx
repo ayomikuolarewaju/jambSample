@@ -5,6 +5,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import BrandLogo from '@/components/BrandLogo'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, ShieldCheck } from 'lucide-react'
@@ -65,11 +66,12 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md animate-slide-up">
 
         <div className="text-center mb-8">
+          <BrandLogo variant="dark" width={240} height={80} priority className="mx-auto mb-5 h-20 w-60 object-contain" />
           <div className="w-16 h-16 bg-green-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <ShieldCheck className="text-white" size={32}/>
           </div>
           <h1 className="text-2xl font-black text-white">Admin Portal</h1>
-          <p className="text-gray-400 text-sm mt-1">JAMB CBT Question Bank Manager</p>
+          <p className="text-gray-400 text-sm mt-1">Question Bank Admin Portal</p>
         </div>
        
         <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-8">

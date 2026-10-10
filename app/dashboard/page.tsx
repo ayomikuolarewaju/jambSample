@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import BrandLogo from '@/components/BrandLogo'
 import LogoutButton from '@/components/auth/LogoutButton'
 import ExamRegistrationCard from '@/components/exam/ExamRegistrationCard'
 import { Trophy, TrendingUp, Clock, Target } from 'lucide-react'
@@ -107,9 +108,8 @@ export default async function DashboardPage() {
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">🇳🇬</span>
             <div>
-              <p className="text-green-800 font-black leading-none">Eko Free CBT Hub</p>
+              <BrandLogo width={180} height={60} className="h-12 w-36 object-contain" />
               <p className="text-gray-400 text-[10px] tracking-widest uppercase">Candidate Dashboard</p>
             </div>
           </div>

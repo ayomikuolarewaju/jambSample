@@ -1,9 +1,11 @@
 export function inviteEmailTemplate({
   firstName,
   accessLink,
+  logoUrl,
 }: {
   firstName: string
   accessLink: string
+  logoUrl: string
 }) {
   const year = new Date().getFullYear()
 
@@ -11,7 +13,7 @@ export function inviteEmailTemplate({
 <html lang="en">
 <head><meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>JAMB CBT – Your Exam Access</title></head>
+<title>Eko Free CBT Hub — Your Exam Access</title></head>
 <body style="margin:0;padding:0;background:#f0fdf4;font-family:'Segoe UI',Arial,sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4;padding:32px 16px;">
 <tr><td align="center">
@@ -22,7 +24,8 @@ export function inviteEmailTemplate({
   <!-- Header -->
   <tr><td style="background:linear-gradient(135deg,#15803d,#166534);
                   padding:32px 40px;text-align:center;">
-    <p style="margin:0;font-size:42px;">🇳🇬</p>
+    <img src="${logoUrl}" alt="Eko Free CBT Hub" width="270" height="90"
+      style="display:block;width:270px;max-width:100%;height:auto;margin:0 auto 12px;background:#fff;border-radius:12px;"/>
     <h1 style="margin:12px 0 4px;color:#fff;font-size:22px;font-weight:900;">
       Eko Free CBT Hub
     </h1>
@@ -94,7 +97,7 @@ export function inviteEmailTemplate({
   <tr><td style="background:#f9fafb;padding:20px 40px;text-align:center;
                   border-top:1px solid #e5e7eb;">
     <p style="margin:0 0 4px;font-size:12px;color:#9ca3af;">
-      © ${year} JAMB CBT Practice Platform · Nigeria
+      © ${year} Eko Free CBT Hub
     </p>
     <p style="margin:0;font-size:11px;color:#d1d5db;">
       Do not share this link — it is unique to you.
@@ -118,10 +121,10 @@ Steps after clicking:
 
 This link is valid for 7 days.
 
-© ${year} JAMB CBT Practice Platform · Nigeria`
+© ${year} Eko Free CBT Hub`
 
   return {
-    subject: '🎓 Your JAMB CBT Exam is Ready — Start Now',
+    subject: '🎓 Eko Free CBT Hub — Your JAMB CBT Exam Is Ready',
     html,
     text,
   }

@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import BrandLogo from '@/components/BrandLogo'
 import { LayoutDashboard, FileQuestion, BookOpen, Mail, LogOut } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -26,15 +27,8 @@ export default function AdminNav() {
     <aside className="w-56 bg-gray-900 min-h-screen flex flex-col border-r border-gray-800">
       {/* Logo */}
       <div className="p-5 border-b border-gray-800">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-green-700 rounded-lg flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-sm font-black">J</span>
-          </div>
-          <div>
-            <p className="text-white font-black text-sm leading-none">JAMB Admin</p>
-            <p className="text-gray-500 text-[10px]">Question Bank</p>
-          </div>
-        </div>
+        <BrandLogo variant="dark" width={180} height={60} className="h-12 w-36 object-contain" />
+        <p className="mt-1 text-gray-400 text-[10px]">Admin Portal</p>
       </div>
 
       {/* Nav links */}

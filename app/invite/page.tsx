@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import BrandLogo from '@/components/BrandLogo'
 import { Mail, Send, CheckCircle } from 'lucide-react'
 
 export default function InvitePage() {
@@ -30,7 +31,7 @@ export default function InvitePage() {
       <div className="w-full max-w-md animate-slide-up">
 
         <div className="text-center mb-8">
-          <div className="text-5xl mb-3">🇳🇬</div>
+          <BrandLogo width={240} height={80} priority className="mx-auto mb-3 h-20 w-60 object-contain" />
           <h1 className="text-2xl font-black text-green-800">Get Your Registration Link</h1>
           <p className="text-gray-500 text-sm mt-1">We&apos;ll email you a direct link to the registration page</p>
         </div>
