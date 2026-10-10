@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import AdminNav from '@/components/admin/AdminNav'
 import {
   PlusCircle, Search, Pencil, Trash2, X, Save,
-  ChevronDown, ChevronUp, BookOpen, Filter
+  ChevronDown, ChevronUp, BookOpen
 } from 'lucide-react'
 import clsx from 'clsx'
 
@@ -30,7 +30,7 @@ const EMPTY_FORM   = {
 }
 
 export default function QuestionsPage() {
-  const supabase = createClient()
+  const [supabase] = useState(() => createClient())
 
   const [questions,      setQuestions]      = useState<Question[]>([])
   const [subjects,       setSubjects]       = useState<Subject[]>([])
@@ -65,8 +65,9 @@ export default function QuestionsPage() {
     setSubjects(subs || [])
     setQuestions(qs || [])
     setLoading(false)
-  }, [])
+  }, [supabase])
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { void load() }, [load])
 
   const setF = (k: keyof typeof form) =>
@@ -384,7 +385,7 @@ export default function QuestionsPage() {
                   Answer Options <span className="text-red-500">*</span>
                 </label>
                 <div className="space-y-2">
-                  {OPTIONS.map((opt, i) => {
+                  {OPTIONS.map(opt => {
                     const key = `option_${opt.toLowerCase()}` as keyof typeof form
                     const isCorrect = form.correct_option === opt
                     return (

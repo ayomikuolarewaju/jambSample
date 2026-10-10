@@ -39,13 +39,7 @@ function GuestExamContent() {
   const timerRef         = useRef<NodeJS.Timeout | null>(null)
   const autoSubmittedRef = useRef(false)
 
-  // ── Load session + questions ──────────────────────────────────────────
-  useEffect(() => {
-    if (!sessionId) { setError('No session ID found.'); setLoading(false); return }
-    load()
-  }, [sessionId])
-
-  const load = async () => {
+  const load = useCallback(async () => {
     const { data: session } = await supabase
       .from('guest_sessions')
       .select('*')
@@ -64,15 +58,18 @@ function GuestExamContent() {
 
     if (!subjectsData) { setError('Failed to load subjects.'); setLoading(false); return }
 
+    const typedSubjects = subjectsData as Subject[]
+
     const ordered = session.subject_ids
-      .map((id: string) => subjectsData.find((s: Subject) => s.id === id))
-      .filter((sub): sub is Subject => Boolean(sub))
+      .map((id: string) => typedSubjects.find((s: Subject) => s.id === id))
+      .filter((sub: Subject | undefined): sub is Subject => Boolean(sub))
 
     const withQs: SubjectWithQuestions[] = await Promise.all(
       ordered.map(async (sub: Subject) => {
-        const { data: qs } = await supabase
+        const { data: qs } = (await supabase
           .from('questions').select('*').eq('subject_id', sub.id).eq('is_active', true)
-        return { ...sub, questions: randomizeQuestions(qs || [], `${sessionId}:${sub.id}`).slice(0, 10) }
+        ) as { data: Question[] | null }
+        return { ...sub, questions: randomizeQuestions<Question>(qs || [], `${sessionId}:${sub.id}`).slice(0, 10) }
       })
     )
     setSubjects(withQs)
@@ -84,7 +81,7 @@ function GuestExamContent() {
     if (existingAnswers?.length) {
       const ans: Record<string, string | null> = {}
       const flg: Record<string, boolean> = {}
-      existingAnswers.forEach(a => {
+      existingAnswers.forEach((a: { question_id: string; selected_option: 'A' | 'B' | 'C' | 'D' | null; is_flagged: boolean }) => {
         ans[a.question_id] = a.selected_option
         flg[a.question_id] = a.is_flagged
       })
@@ -92,7 +89,38 @@ function GuestExamContent() {
     }
 
     setLoading(false)
-  }
+  }, [router, sessionId, supabase])
+
+  useEffect(() => {
+    if (!sessionId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setError('No session ID found.')
+      setLoading(false)
+      return
+    }
+    void load()
+  }, [load, sessionId])
+
+  // ── Submit via API route ──────────────────────────────────────────────
+  const submitExam = useCallback(async (auto = false) => {
+    if (submitting) return
+    setSubmitting(true)
+    if (timerRef.current) clearInterval(timerRef.current)
+
+    const res = await fetch('/api/guest-submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, timeRemaining: timeLeft, isAutoSubmit: auto }),
+    })
+
+    if (res.ok) {
+      router.push(`/guest-results?session=${sessionId}`)
+    } else {
+      setSubmitting(false)
+      setShowConfirm(false)
+      setError('Submission failed. Please try again.')
+    }
+  }, [router, sessionId, submitting, timeLeft])
 
   // ── Timer ─────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -101,14 +129,14 @@ function GuestExamContent() {
       setTimeLeft(t => {
         if (t <= 1 && !autoSubmittedRef.current) {
           autoSubmittedRef.current = true
-          submitExam(true)
+          void submitExam(true)
           return 0
         }
         return t - 1
       })
     }, 1000)
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
-  }, [loading, showInstructions])
+  }, [loading, showInstructions, submitExam])
 
   // ── Save answer via API route ─────────────────────────────────────────
   const saveAnswer = useCallback(async (
@@ -135,27 +163,6 @@ function GuestExamContent() {
     const newFlagged = !flagged[q.id]
     setFlagged(prev => ({ ...prev, [q.id]: newFlagged }))
     await saveAnswer(q.id, subjects[subjectIdx].id, answers[q.id] || null, newFlagged)
-  }
-
-  // ── Submit via API route ──────────────────────────────────────────────
-  const submitExam = async (auto = false) => {
-    if (submitting) return
-    setSubmitting(true)
-    if (timerRef.current) clearInterval(timerRef.current)
-
-    const res = await fetch('/api/guest-submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId, timeRemaining: timeLeft, isAutoSubmit: auto }),
-    })
-
-    if (res.ok) {
-      router.push(`/guest-results?session=${sessionId}`)
-    } else {
-      setSubmitting(false)
-      setShowConfirm(false)
-      setError('Submission failed. Please try again.')
-    }
   }
 
   const fmt = (s: number) =>
@@ -426,7 +433,7 @@ function GuestExamContent() {
 
           {/* Per-subject progress */}
           <div className="border-t border-gray-100 pt-3 space-y-2">
-            {subjects.map((sub, i) => {
+            {subjects.map(sub => {
               const ans = sub.questions.filter(q => answers[q.id] != null).length
               return (
                 <div key={sub.id}>

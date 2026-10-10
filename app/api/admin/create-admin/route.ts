@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     const cleanEmail = email.toLowerCase().trim()
 
     // ── Try to create Auth user ────────────────────────────────────────
-    const { data: created, error: createError } = await admin.auth.admin.createUser({
+    const { error: createError } = await admin.auth.admin.createUser({
       email:         cleanEmail,
       password,
       email_confirm: true,        // confirmed immediately — no email needed
@@ -54,8 +54,6 @@ export async function POST(request: Request) {
     })
 
     // If user already exists in Auth, look them up instead
-    let authUserId: string | null = null
-
     if (createError) {
       if (
         createError.message.includes('already been registered') ||
@@ -66,7 +64,6 @@ export async function POST(request: Request) {
         const { data: list } = await admin.auth.admin.listUsers()
         const existing = list?.users?.find(u => u.email === cleanEmail)
         if (existing) {
-          authUserId = existing.id
           // Update their password to the new one
           await admin.auth.admin.updateUserById(existing.id, {
             password,
@@ -85,8 +82,6 @@ export async function POST(request: Request) {
           { status: 400 }
         )
       }
-    } else {
-      authUserId = created.user?.id || null
     }
 
     // ── Upsert into admins table ───────────────────────────────────────

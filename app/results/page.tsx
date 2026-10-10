@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import LogoutButton from '@/components/auth/LogoutButton'
@@ -6,6 +6,20 @@ import PrintableBtn from '@/components/PrintableBtn'
 
 interface Props {
   searchParams: { session?: string }
+}
+
+type SubjectResult = {
+  id: string
+  correct_count: number
+  questions_total: number
+  score: number
+  subjects?: { name: string }
+}
+
+type SessionSummary = {
+  total_score: number | null
+  registration_id: string
+  exam_registrations?: { user_id: string }[] | { user_id: string }
 }
 
 export default async function ResultsPage({ searchParams }: Props) {
@@ -59,7 +73,7 @@ export default async function ResultsPage({ searchParams }: Props) {
     .eq('exam_registrations.user_id', user.id)
     .not('submitted_at', 'is', null)
 
-  const allScores    = (allSessions || []).map((s: any) => s.total_score ?? 0)
+  const allScores    = (allSessions || []).map((s: SessionSummary) => Number(s.total_score ?? 0))
   const bestScore    = allScores.length ? Math.max(...allScores) : 0
   const isThisBest   = Math.round(session.total_score ?? 0) >= Math.round(bestScore)
   const totalAttempts = allScores.length
@@ -147,7 +161,7 @@ export default async function ResultsPage({ searchParams }: Props) {
         <div className="card">
           <h2 className="section-title">Subject Scores</h2>
           <div className="space-y-5">
-            {subjectResults?.map((sr: any) => {
+            {subjectResults?.map((sr: SubjectResult) => {
               const subPct   = Math.round((sr.correct_count / sr.questions_total) * 100)
               const subScore = Math.round(sr.score)
               const barColor = subPct >= 70 ? 'bg-green-600' : subPct >= 50 ? 'bg-yellow-500' : 'bg-red-500'
@@ -177,7 +191,7 @@ export default async function ResultsPage({ searchParams }: Props) {
           <h3 className="font-bold text-green-800 mb-2">📝 What Next?</h3>
           <ul className="text-sm text-green-700 space-y-1.5 list-disc pl-4">
             <li>Visit <strong>jamb.gov.ng</strong> to register for the official UTME.</li>
-            <li>Check your preferred institution's departmental cut-off marks.</li>
+            <li>Check your preferred institution&apos;s departmental cut-off marks.</li>
             {totalScore < 180 && (
               <li className="text-red-600 font-medium">
                 Your score is below 180. Go back to the dashboard and take another attempt!

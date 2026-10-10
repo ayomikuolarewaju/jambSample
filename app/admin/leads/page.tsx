@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import AdminNav from '@/components/admin/AdminNav'
-import { Search, Mail, CheckCircle, Clock, X } from 'lucide-react'
+import { Search, Mail, CheckCircle, Clock } from 'lucide-react'
 import clsx from 'clsx'
 
 interface Lead {
@@ -12,7 +12,6 @@ interface Lead {
 }
 
 export default function LeadsPage() {
-  const supabase = createClient()
   const [leads,   setLeads]   = useState<Lead[]>([])
   const [loading, setLoading] = useState(true)
   const [search,  setSearch]  = useState('')

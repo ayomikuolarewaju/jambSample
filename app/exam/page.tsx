@@ -79,18 +79,20 @@ export default async function ExamPage() {
     .select('*')
     .in('id', activeReg.subject_ids)
 
+  const typedSubjects = (subjectsData ?? []) as Subject[]
+
   const ordered = activeReg.subject_ids
-    .map((id: string) => subjectsData?.find((s: Subject) => s.id === id))
-    .filter((sub): sub is Subject => Boolean(sub))
+    .map((id: string) => typedSubjects.find((s: Subject) => s.id === id))
+    .filter((sub: Subject | undefined): sub is Subject => Boolean(sub))
 
   const withQs: SubjectWithQuestions[] = await Promise.all(
     (ordered as Subject[]).map(async (sub: Subject) => {
-      const { data: qs } = await supabase
+      const { data: qs } = (await supabase
         .from('questions')
         .select('*')
         .eq('subject_id', sub.id)
-        .eq('is_active', true)
-      const randomized = randomizeQuestions(qs || [], `${sid}:${sub.id}`).slice(0, 10)
+        .eq('is_active', true)) as { data: Question[] | null }
+      const randomized = randomizeQuestions<Question>(qs || [], `${sid}:${sub.id}`).slice(0, 10)
       return { ...sub, questions: randomized }
     })
   )

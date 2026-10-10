@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import AdminNav from '@/components/admin/AdminNav'
 import { PlusCircle, Pencil, Save, X, ToggleLeft, ToggleRight } from 'lucide-react'
@@ -10,7 +10,7 @@ const CATEGORIES = ['compulsory','science','commercial','arts']
 const EMPTY = { name:'', code:'', category:'science', is_active: true }
 
 export default function SubjectsPage() {
-  const supabase = createClient()
+  const [supabase] = useState(() => createClient())
   const [subjects, setSubjects] = useState<Subject[]>([])
   const [loading,  setLoading]  = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -20,14 +20,15 @@ export default function SubjectsPage() {
   const [error,    setError]    = useState('')
   const [success,  setSuccess]  = useState('')
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true)
     const { data } = await supabase.from('subjects').select('*').order('category').order('name')
     setSubjects(data || [])
     setLoading(false)
-  }
+  }, [supabase])
 
-  useEffect(() => { load() }, [])
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { void load() }, [load])
 
   const setF = (k: keyof typeof form) =>
     (e: React.ChangeEvent<HTMLInputElement|HTMLSelectElement>) =>

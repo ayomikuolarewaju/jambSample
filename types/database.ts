@@ -3,13 +3,6 @@ export type Json = string | number | boolean | null | { [key: string]: Json } | 
 export interface Database {
   public: {
     Tables: {
-      [key: string]: {
-        Row: any
-        Insert: any
-        Update: any
-        Relationships: any[]
-      }
-    } & {
       profiles: {
         Row: {
           id: string
@@ -83,14 +76,14 @@ export interface Database {
           registered_at: string
           exam_started_at: string | null
           exam_ended_at: string | null
-          attempt_number: number | null
+          attempt_number: number
         }
-        Insert: Omit<Database['public']['Tables']['exam_registrations']['Row'], 'id' | 'registered_at'> & {
+        Insert: Omit<Database['public']['Tables']['exam_registrations']['Row'], 'id' | 'registered_at' | 'attempt_number'> & {
           id?: string
           registered_at?: string
+          attempt_number?: number
           exam_started_at?: string | null
           exam_ended_at?: string | null
-          attempt_number?: number | null
         }
         Update: Partial<Database['public']['Tables']['exam_registrations']['Insert']>
         Relationships: []

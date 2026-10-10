@@ -15,6 +15,10 @@ type CourseGroup = keyof typeof COURSE_GROUPS
 
 const NIGERIA_STATES = ['Abia','Adamawa','Akwa Ibom','Anambra','Bauchi','Bayelsa','Benue','Borno','Cross River','Delta','Ebonyi','Edo','Ekiti','Enugu','FCT','Gombe','Imo','Jigawa','Kaduna','Kano','Katsina','Kebbi','Kogi','Kwara','Lagos','Nasarawa','Niger','Ogun','Ondo','Osun','Oyo','Plateau','Rivers','Sokoto','Taraba','Yobe','Zamfara']
 
+const Label = ({ children }: { children: React.ReactNode }) => (
+  <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">{children}</label>
+)
+
 export default function RegisterPage() {
   const router = useRouter()
   const [showPwd, setShowPwd] = useState(false)
@@ -81,10 +85,6 @@ export default function RegisterPage() {
     router.push('/dashboard')
     router.refresh()
   }
-
-  const Label = ({ children }: { children: React.ReactNode }) => (
-    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">{children}</label>
-  )
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-white py-10 px-4">

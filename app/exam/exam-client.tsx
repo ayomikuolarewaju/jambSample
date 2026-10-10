@@ -9,15 +9,6 @@ import type { ExamAnswer, Question, Subject } from '@/types/database'
 const EXAM_DURATION = 30 * 60
 const OPTIONS = ['A', 'B', 'C', 'D'] as const
 
-const shuffleQuestions = <T,>(items: T[]) => {
-  const copy = [...items]
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[copy[i], copy[j]] = [copy[j], copy[i]]
-  }
-  return copy
-}
-
 interface SubjectWithQuestions extends Subject {
   questions: Question[]
 }
@@ -44,11 +35,11 @@ export default function ExamClient({
   const router = useRouter()
   const supabase = createClient()
 
-  const [subjects, setSubjects] = useState<SubjectWithQuestions[]>(initialSubjects)
+  const subjects = initialSubjects
   const [subjectIdx, setSubjectIdx] = useState(0)
   const [questionIdx, setQuestionIdx] = useState(0)
-  const [answers, setAnswers] = useState<Record<string, string | null>>({})
-  const [flagged, setFlagged] = useState<Record<string, boolean>>({})
+  const [answers, setAnswers] = useState<Record<string, string | null>>(() => Object.fromEntries(savedAnswers.map((answer) => [answer.question_id, answer.selected_option])))
+  const [flagged, setFlagged] = useState<Record<string, boolean>>(() => Object.fromEntries(savedAnswers.map((answer) => [answer.question_id, answer.is_flagged])))
   const [timeLeft, setTimeLeft] = useState(initialTimeLeft || EXAM_DURATION)
   const [showConfirm, setShowConfirm] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -57,78 +48,7 @@ export default function ExamClient({
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const autoSubmittedRef = useRef(false)
 
-  // Initialize answers from saved data
-  useEffect(() => {
-    if (savedAnswers.length) {
-      const ans: Record<string, string | null> = {}
-      const flg: Record<string, boolean> = {}
-      savedAnswers.forEach((a) => {
-        ans[a.question_id] = a.selected_option
-        flg[a.question_id] = a.is_flagged
-      })
-      setAnswers(ans)
-      setFlagged(flg)
-    }
-  }, [])
-
-  // Timer
-  useEffect(() => {
-    if (showInstructions) return
-    timerRef.current = setInterval(() => {
-      setTimeLeft((t) => {
-        if (t <= 1 && !autoSubmittedRef.current) {
-          autoSubmittedRef.current = true
-          submitExam(true)
-          return 0
-        }
-        return t - 1
-      })
-    }, 1000)
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current)
-    }
-  }, [showInstructions])
-
-  const saveAnswer = useCallback(
-    async (
-      questionId: string,
-      subjectId: string,
-      option: string | null,
-      isFlagged: boolean
-    ) => {
-      const selectedOption = option as ExamAnswer['selected_option']
-      await supabase.from('exam_answers').upsert(
-        {
-          session_id: sessionId,
-          user_id: userId,
-          question_id: questionId,
-          subject_id: subjectId,
-          selected_option: selectedOption,
-          is_correct: null,
-          is_flagged: isFlagged,
-        },
-        { onConflict: 'session_id,question_id' }
-      )
-    },
-    [sessionId, userId, supabase]
-  )
-
-  const selectOption = async (opt: string) => {
-    const q = subjects[subjectIdx]?.questions[questionIdx]
-    if (!q) return
-    setAnswers((prev) => ({ ...prev, [q.id]: opt }))
-    await saveAnswer(q.id, subjects[subjectIdx].id, opt, flagged[q.id] || false)
-  }
-
-  const toggleFlag = async () => {
-    const q = subjects[subjectIdx]?.questions[questionIdx]
-    if (!q) return
-    const newFlagged = !flagged[q.id]
-    setFlagged((prev) => ({ ...prev, [q.id]: newFlagged }))
-    await saveAnswer(q.id, subjects[subjectIdx].id, answers[q.id] || null, newFlagged)
-  }
-
-  const submitExam = async (auto = false) => {
+  const submitExam = useCallback(async (auto = false) => {
     if (submitting) return
     setSubmitting(true)
     if (timerRef.current) clearInterval(timerRef.current)
@@ -183,7 +103,65 @@ export default function ExamClient({
       .eq('id', registrationId)
 
     router.push(`/results?session=${sessionId}`)
+  }, [answers, registrationId, router, sessionId, subjects, submitting, supabase, timeLeft, userId])
+
+  // Timer
+  useEffect(() => {
+    if (showInstructions) return
+    timerRef.current = setInterval(() => {
+      setTimeLeft((t) => {
+        if (t <= 1 && !autoSubmittedRef.current) {
+          autoSubmittedRef.current = true
+          void submitExam(true)
+          return 0
+        }
+        return t - 1
+      })
+    }, 1000)
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
+  }, [showInstructions, submitExam])
+
+  const saveAnswer = useCallback(
+    async (
+      questionId: string,
+      subjectId: string,
+      option: string | null,
+      isFlagged: boolean
+    ) => {
+      const selectedOption = option as ExamAnswer['selected_option']
+      await supabase.from('exam_answers').upsert(
+        {
+          session_id: sessionId,
+          user_id: userId,
+          question_id: questionId,
+          subject_id: subjectId,
+          selected_option: selectedOption,
+          is_correct: null,
+          is_flagged: isFlagged,
+        },
+        { onConflict: 'session_id,question_id' }
+      )
+    },
+    [sessionId, userId, supabase]
+  )
+
+  const selectOption = async (opt: string) => {
+    const q = subjects[subjectIdx]?.questions[questionIdx]
+    if (!q) return
+    setAnswers((prev) => ({ ...prev, [q.id]: opt }))
+    await saveAnswer(q.id, subjects[subjectIdx].id, opt, flagged[q.id] || false)
   }
+
+  const toggleFlag = async () => {
+    const q = subjects[subjectIdx]?.questions[questionIdx]
+    if (!q) return
+    const newFlagged = !flagged[q.id]
+    setFlagged((prev) => ({ ...prev, [q.id]: newFlagged }))
+    await saveAnswer(q.id, subjects[subjectIdx].id, answers[q.id] || null, newFlagged)
+  }
+
 
   const fmt = (s: number) =>
     `${Math.floor(s / 60)

@@ -1,13 +1,40 @@
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/server'
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import LogoutButton from '@/components/auth/LogoutButton'
 import ExamRegistrationCard from '@/components/exam/ExamRegistrationCard'
 import { Trophy, TrendingUp, Clock, Target } from 'lucide-react'
 
+type SessionLike = {
+  id: string
+  total_score: number | null
+  submitted_at: string | null
+  is_auto_submitted?: boolean | null
+  time_remaining?: number | null
+}
+
+type AttemptRecord = {
+  id: string
+  course_group: string
+  attempt_number: number | null
+  registered_at: string
+  exam_sessions?: SessionLike | SessionLike[] | null
+}
+
 export default async function DashboardPage() {
+  const cookieStore = await cookies()
+  const projectRef = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).hostname.split('.')[0]
+  const sessionCookiePresent = cookieStore
+    .getAll()
+    .some(({ name }) => name.startsWith(`sb-${projectRef}-auth-token`))
+  console.info('[dashboard] request session cookie present:', sessionCookiePresent)
+
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError) {
+    console.error('[dashboard] Supabase auth verification failed:', authError.message)
+  }
   if (!user) redirect('/auth/login')
 
   const { data: profile } = await supabase
@@ -26,11 +53,11 @@ export default async function DashboardPage() {
     .order('registered_at', { ascending: false })
 
   // Filter down to only completed ones (session exists + has submitted_at)
-  const completed = (attempts || []).filter((a: any) => {
-    const sess = Array.isArray(a.exam_sessions)
-      ? a.exam_sessions[0]
-      : a.exam_sessions
-    return sess?.submitted_at
+  const completed = (attempts || []).filter((attempt: AttemptRecord) => {
+    const sess = Array.isArray(attempt.exam_sessions)
+      ? attempt.exam_sessions[0]
+      : attempt.exam_sessions
+    return Boolean(sess?.submitted_at)
   })
 
   // ── Active in-progress session (status = in_progress, session NOT submitted) ──
@@ -44,20 +71,19 @@ export default async function DashboardPage() {
     .maybeSingle()
 
   // Only treat as active if the session is NOT yet submitted
-  const rawSession = Array.isArray((activeReg as any)?.exam_sessions)
-    ? (activeReg as any)?.exam_sessions[0]
-    : (activeReg as any)?.exam_sessions
+  const activeRegData = activeReg as { id: string; exam_sessions?: SessionLike | SessionLike[] | null } | null
+  const rawSession = Array.isArray(activeRegData?.exam_sessions)
+    ? activeRegData?.exam_sessions[0]
+    : activeRegData?.exam_sessions
 
-  const activeRegAny = activeReg as any
-
-  const activeSession = (rawSession && !rawSession.submitted_at && activeRegAny)
-    ? { id: rawSession.id, registration_id: activeRegAny.id, submitted_at: null }
+  const activeSession = (rawSession && !rawSession.submitted_at && activeRegData)
+    ? { id: rawSession.id, registration_id: activeRegData.id, submitted_at: null }
     : null
 
   // ── Stats ─────────────────────────────────────────────────────────────
   const scores = completed
-    .map((a: any) => {
-      const sess = Array.isArray(a.exam_sessions) ? a.exam_sessions[0] : a.exam_sessions
+    .map((attempt: AttemptRecord) => {
+      const sess = Array.isArray(attempt.exam_sessions) ? attempt.exam_sessions[0] : attempt.exam_sessions
       return sess?.total_score ?? 0
     })
     .filter((s: number) => s > 0)
@@ -161,7 +187,7 @@ export default async function DashboardPage() {
           <div className="card animate-slide-up">
             <h3 className="section-title">📊 Attempt History</h3>
             <div className="space-y-3">
-              {completed.map((attempt: any, idx: number) => {
+              {completed.map((attempt: AttemptRecord, idx: number) => {
                 const sess  = Array.isArray(attempt.exam_sessions)
                   ? attempt.exam_sessions[0]
                   : attempt.exam_sessions

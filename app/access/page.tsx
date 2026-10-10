@@ -6,10 +6,10 @@
 //   2. Pick subject combination
 //   3. Go straight to exam
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { CheckCircle, BookOpen, FlaskConical, Briefcase, Palette } from 'lucide-react'
+import { CheckCircle } from 'lucide-react'
 
 import clsx from 'clsx'
 
@@ -49,17 +49,7 @@ function AccessContent() {
   const [courseGroup, setCourseGroup] = useState<CourseGroup | ''>('')
   const [electives,   setElectives]   = useState<string[]>([])
 
-  // ── Validate token on mount ───────────────────────────────────────────
-  useEffect(() => {
-    if (!token) {
-      setErrorMsg('No access token found. Please use the link sent to your email.')
-      setStage('error')
-      return
-    }
-    validate()
-  }, [token])
-
-  const validate = async () => {
+  const validate = useCallback(async () => {
     const supabase = createClient()
     const { data: lead, error } = await supabase
       .from('invite_leads')
@@ -101,7 +91,17 @@ function AccessContent() {
     setLeadId(lead.id)
     setFirstName(lead.first_name || 'Candidate')
     setStage('pick')
-  }
+  }, [router, token])
+
+  useEffect(() => {
+    if (!token) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setErrorMsg('No access token found. Please use the link sent to your email.')
+      setStage('error')
+      return
+    }
+    void validate()
+  }, [token, validate])
 
   const toggleElective = (sub: string) => {
     setElectives(prev => {

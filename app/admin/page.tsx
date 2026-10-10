@@ -4,6 +4,7 @@
 // Setup: create auth user in Supabase dashboard FIRST, then insert into admins table
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, ShieldCheck } from 'lucide-react'
@@ -119,7 +120,7 @@ export default function AdminLoginPage() {
         </div>
 
         <p className="text-center text-xs text-gray-600 mt-6">
-          Authorised administrators only · <a href="/" className="hover:text-gray-400 transition-colors">Back to Portal</a>
+          Authorised administrators only · <Link href="/" className="hover:text-gray-400 transition-colors">Back to Portal</Link>
         </p>
       </div>
     </div>

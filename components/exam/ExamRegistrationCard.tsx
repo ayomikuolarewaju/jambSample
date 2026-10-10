@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { CheckCircle } from 'lucide-react'
@@ -21,21 +21,37 @@ export default function ExamRegistrationCard({ userId, activeSession }: Props) {
   const router = useRouter()
   const [loading,     setLoading]     = useState(false)
   const [error,       setError]       = useState('')
-  const [courseGroup, setCourseGroup] = useState<CourseGroup | ''>('')
-  const [electives,   setElectives]   = useState<string[]>([])
-  const [showPicker,  setShowPicker]  = useState(false)
 
-  useEffect(() => {
-    const saved = localStorage.getItem('jamb_combination')
-    if (saved) {
-      try {
-        const p = JSON.parse(saved)
-        setCourseGroup(p.courseGroup)
-        setElectives(p.electives)
-        setShowPicker(true)
-      } catch {}
+  const [courseGroup, setCourseGroup] = useState<CourseGroup | ''>(() => {
+    if (typeof window === 'undefined') return ''
+    try {
+      const saved = localStorage.getItem('jamb_combination')
+      if (!saved) return ''
+      const p = JSON.parse(saved) as { courseGroup?: CourseGroup; electives?: string[] }
+      return p.courseGroup || ''
+    } catch {
+      return ''
     }
-  }, [])
+  })
+  const [electives, setElectives] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return []
+    try {
+      const saved = localStorage.getItem('jamb_combination')
+      if (!saved) return []
+      const p = JSON.parse(saved) as { electives?: string[] }
+      return Array.isArray(p.electives) ? p.electives : []
+    } catch {
+      return []
+    }
+  })
+  const [showPicker, setShowPicker] = useState(() => {
+    if (typeof window === 'undefined') return false
+    try {
+      return Boolean(localStorage.getItem('jamb_combination'))
+    } catch {
+      return false
+    }
+  })
 
   const toggleElective = (sub: string) => setElectives(prev => {
     if (prev.includes(sub)) return prev.filter(s => s !== sub)
@@ -59,8 +75,8 @@ export default function ExamRegistrationCard({ userId, activeSession }: Props) {
     }
 
     const subjectIds = subjectNames
-      .map(n => subjects.find(s => s.name === n)?.id)
-      .filter(Boolean) as string[]
+      .map((n: string) => (subjects as Array<{ id: string; name: string }>).find((s: { id: string; name: string }) => s.name === n)?.id)
+      .filter((id: string | undefined): id is string => Boolean(id))
 
     // First mark any old 'registered' or 'in_progress' records as abandoned
     // so they don't interfere
@@ -80,7 +96,6 @@ export default function ExamRegistrationCard({ userId, activeSession }: Props) {
         status:       'registered',
         exam_started_at: null,
         exam_ended_at: null,
-        attempt_number: null,
       })
       .select()
       .single()
@@ -88,7 +103,7 @@ export default function ExamRegistrationCard({ userId, activeSession }: Props) {
     if (regError || !reg) {
       // If unique constraint still exists, give a clear fix instruction
       if (regError?.message?.includes('unique') || regError?.message?.includes('duplicate')) {
-        setError('Database constraint error: please run migration 006_fix_unique_constraint.sql in your Supabase SQL Editor, then try again.')
+        setError('Database constraint error: please run migration 008_allow_multiple_exam_attempts.sql in your Supabase SQL Editor, then try again.')
       } else {
         setError(regError?.message || 'Could not create exam. Please try again.')
       }
